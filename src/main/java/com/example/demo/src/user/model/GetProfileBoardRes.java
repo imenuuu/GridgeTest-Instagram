@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostLoginRes {
-
-    private Long userId;
-    private String jwt;
+public class GetProfileBoardRes {
+    private Long boardId;
+    private String imgUrl;
 }

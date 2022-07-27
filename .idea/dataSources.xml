@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="instagramDB@chatting.cx3635ohpt8d.ap-northeast-2.rds.amazonaws.com" uuid="abc4df03-ff90-4755-aca5-05d6af1db855">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://chatting.cx3635ohpt8d.ap-northeast-2.rds.amazonaws.com:3306/instagramDB</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>

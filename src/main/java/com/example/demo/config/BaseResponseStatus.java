@@ -21,14 +21,18 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
+    NOT_PUBLIC_USER(false,2004,"비공개 유저입니다. 다른 URI 로 요청해주세요"),
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
+    NOT_EXIST_USER(false,2011,"존재하지 않는 유저 입니다"),
+    BLOCKED_BY_PROFILE_USER(false,2022,"차단 되었으므로 회원정보를 조회 할 수 없습니다."),
 
     // [POST] /users
-    POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
-    POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
-    POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+    POST_USERS_EMPTY_ID(false, 2015, "아이디를 입력해주세요."),
+    POST_USERS_INVALID_ID(false, 2016, "아이디 형식을 확인해주세요."),
+    POST_USERS_EXISTS_ID(false,2017,"중복된 아이디 입니다."),
+    NOT_EXIST_KAKAO_USER(false,2018,"등록된 회원이 아닙니다 추가 정보를 입력해주세요"),
 
 
 
@@ -50,7 +54,7 @@ public enum BaseResponseStatus {
     DATABASE_ERROR(false, 4000, "데이터베이스 연결에 실패하였습니다."),
     SERVER_ERROR(false, 4001, "서버와의 연결에 실패하였습니다."),
 
-    //[PATCH] /users/{userIdx}
+    //[PATCH] /users/{userId}
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
 
     PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),

@@ -2,7 +2,6 @@ package com.example.demo.src.user;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
@@ -52,18 +51,25 @@ public class UserProvider {
                     }
 
 
-    public GetUserRes getUser(int userIdx) throws BaseException {
+    public GetUserRes getUser(int userId) throws BaseException {
         try {
-            GetUserRes getUserRes = userDao.getUser(userIdx);
+            GetUserRes getUserRes = userDao.getUser(userId);
             return getUserRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public int checkEmail(String email) throws BaseException{
+    public int checkId(String Id) throws BaseException{
         try{
-            return userDao.checkEmail(email);
+            return userDao.checkId(Id);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    public int checkUser(Long userId) throws BaseException{
+        try{
+            return userDao.checkUser(userId);
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -79,9 +85,9 @@ public class UserProvider {
         }
 
         if(user.getPassword().equals(encryptPwd)){
-            int userIdx = user.getUserIdx();
-            String jwt = jwtService.createJwt(userIdx);
-            return new PostLoginRes(userIdx,jwt);
+            Long userId = user.getId();
+            String jwt = jwtService.createJwt(userId);
+            return new PostLoginRes(userId,jwt);
         }
         else{
             throw new BaseException(FAILED_TO_LOGIN);
@@ -89,4 +95,50 @@ public class UserProvider {
 
     }
 
+    public List<GetMyProfileRes> getMyProfile(Long userId) {
+        List<GetMyProfileRes> getMyProfileRes=userDao.getMyProfile(userId);
+        return getMyProfileRes;
+    }
+
+    public List<GetUserProfileRes> getUserProfile(Long userId, Long targetId) {
+        List<GetUserProfileRes> getUserProfileRes=userDao.getUserProfile(userId,targetId);
+        return getUserProfileRes;
+    }
+
+    public int checkKakaoUser(String email) throws BaseException {
+        try {
+            return userDao.getUserKakaoExists(email);
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public PostLoginRes logInKakao(String k_email) throws BaseException {
+        if (userDao.getUserKakaoExists(k_email) == 1) {
+            Long userIdx = userDao.getIdByKakaoEmail(k_email);
+            String jwt = jwtService.createJwt(userIdx);
+            return new PostLoginRes(userIdx, jwt);
+        } else {
+            throw new BaseException(FAILED_TO_LOGIN);
+        }
+
+    }
+    public String getUserPublic(Long followUserId) {
+        String userPublic=userDao.getUserPublic(followUserId);
+        return userPublic;
+    }
+
+
+    public int checkBlock(Long profileUserId, Long userId) throws BaseException {
+        try{
+            return userDao.checkBlock(userId,profileUserId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetClosedProfileRes> getCloesdProfile(Long userId, Long profileUserId) {
+        List<GetClosedProfileRes> getCloesdProfile=userDao.getCloesdProfile(userId,profileUserId);
+        return getCloesdProfile;
+    }
 }

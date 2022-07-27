@@ -10,13 +10,13 @@ import java.sql.Date;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostUserReq {
+
+public class PostKakaoUserReq {
+    private String accessToken;
     @ApiModelProperty(example="전화번호")
     private String phoneNumber;
     @ApiModelProperty(example="성함")
     private String name;
-    @ApiModelProperty(example="비밀 번호")
-    private String password;
     @ApiModelProperty(example="생일")
     private Date birth;
     @ApiModelProperty(example="아이디")

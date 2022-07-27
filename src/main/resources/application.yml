@@ -7,7 +7,7 @@ spring:
 
   datasource:
     platform: mysql
-    url: jdbc:mysql://chatting.cx3635ohpt8d.ap-northeast-2.rds.amazonaws.com/mangoPlateDev?autoReconnect=true # 변경해주세요
+    url: jdbc:mysql://chatting.cx3635ohpt8d.ap-northeast-2.rds.amazonaws.com/instagramDB?autoReconnect=true # 변경해주세요
     username: root
     password: chat1234 # 변경해주세요
 
