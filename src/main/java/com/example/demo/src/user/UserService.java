@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -201,7 +202,7 @@ public class UserService {
         }
         return null;
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public PostUserRes createKakaoUserToken(PostKakaoUserReq postKakaoUserReq) throws BaseException {
         if(userProvider.checkId(postKakaoUserReq.getUserId()) ==1){
             throw new BaseException(POST_USERS_EXISTS_ID);
@@ -211,7 +212,7 @@ public class UserService {
         return new PostUserRes(jwt,userIdx);
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void createKakaoUser(KakaoInfo kakaoInfo, Long userId) throws BaseException {
 
         try {
@@ -222,7 +223,7 @@ public class UserService {
         }
 
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public void userBlock(Long userId, Long blockUserId) throws BaseException {
         try {
             userDao.userBlock(userId, blockUserId);

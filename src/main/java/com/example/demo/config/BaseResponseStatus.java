@@ -32,7 +32,7 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_ID(false, 2015, "아이디를 입력해주세요."),
     POST_USERS_INVALID_ID(false, 2016, "아이디 형식을 확인해주세요."),
     POST_USERS_EXISTS_ID(false,2017,"중복된 아이디 입니다."),
-    NOT_EXIST_KAKAO_USER(false,2018,"등록된 회원이 아닙니다 추가 정보를 입력해주세요"),
+    NOT_EXIST_KAKAO_USER(false,2018,"등록된 카카오 유저가 아닙니다 추가정보를 입력해주세요."),
 
 
 

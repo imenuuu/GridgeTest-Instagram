@@ -12,6 +12,7 @@ import java.sql.Date;
 @AllArgsConstructor
 
 public class PostKakaoUserReq {
+    @ApiModelProperty(example="카카오 액세스 토큰")
     private String accessToken;
     @ApiModelProperty(example="전화번호")
     private String phoneNumber;

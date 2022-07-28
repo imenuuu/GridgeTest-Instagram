@@ -283,6 +283,9 @@ public class UserController {
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
+            if(userProvider.checkUser(blockUserId)==1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
             followService.unFollow(userId,blockUserId);
 
             followService.unFollow(blockUserId,userId);
