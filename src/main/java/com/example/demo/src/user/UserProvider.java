@@ -141,4 +141,36 @@ public class UserProvider {
         List<GetClosedProfileRes> getCloesdProfile=userDao.getCloesdProfile(userId,profileUserId);
         return getCloesdProfile;
     }
+
+    public int checkUserPhoneNumber(PatchPasswordRes patchPasswordRes) throws BaseException {
+        try{
+            return userDao.checkUserPhoneNumber(patchPasswordRes);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void modifyPublicFalse(Long userId) throws BaseException {
+        try{
+            userDao.modifyPublicFalse(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void modifyPublicTrue(Long userId) throws BaseException {
+        try{
+            userDao.modifyPublicTrue(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkFollow(Long userId, Long profileUserId) throws BaseException {
+        try{
+            return userDao.checkFollow(userId, profileUserId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

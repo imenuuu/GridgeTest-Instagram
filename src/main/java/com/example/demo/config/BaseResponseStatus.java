@@ -24,7 +24,7 @@ public enum BaseResponseStatus {
     NOT_PUBLIC_USER(false,2004,"비공개 유저입니다. 다른 URI 로 요청해주세요"),
 
     // users
-    USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
+    USERS_EMPTY_userId(false, 2010, "유저 아이디 값을 확인해주세요."),
     NOT_EXIST_USER(false,2011,"존재하지 않는 유저 입니다"),
     BLOCKED_BY_PROFILE_USER(false,2022,"차단 되었으므로 회원정보를 조회 할 수 없습니다."),
 
@@ -57,9 +57,9 @@ public enum BaseResponseStatus {
     //[PATCH] /users/{userId}
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
 
-    PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다.");
-
+    PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패 하였습니다."),
+    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패 하였습니다."),
+    NOT_SUCCESS_USER_INFO(false,4013,"계정 정보와 일치 하지 않음");
 
     // 5000 : 필요시 만들어서 쓰세요
     // 6000 : 필요시 만들어서 쓰세요

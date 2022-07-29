@@ -14,7 +14,7 @@ public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
 
-    List<GetProfileBoardRes> getProfileBoardRes;
+    List<GetProfileBoardRes> getProfileBoard;
     @Autowired
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -128,7 +128,7 @@ public class UserDao {
                         rs.getInt("boardCnt"),
                         rs.getInt("followerCnt"),
                         rs.getInt("followingCnt"),
-                        getProfileBoardRes=this.jdbcTemplate.query(getProfileBoardQuery,
+                        getProfileBoard=this.jdbcTemplate.query(getProfileBoardQuery,
                                 (rk,rownum)->new GetProfileBoardRes(
                                         rk.getLong("boardId"),
                                         rk.getString("imgUrl")
@@ -169,11 +169,11 @@ public class UserDao {
                         rs.getInt("followerCnt"),
                         rs.getInt("followingCnt"),
                         rs.getInt("followCheck"),
-                        getProfileBoardRes=this.jdbcTemplate.query(getProfileBoardQuery,
+                        getProfileBoard=this.jdbcTemplate.query(getProfileBoardQuery,
                                 (rk,rownum)->new GetProfileBoardRes(
                                         rk.getLong("boardId"),
                                         rk.getString("imgUrl")
-                                ),userId)
+                                ),targetId)
                 ),userId,targetId);
     }
 
@@ -268,5 +268,35 @@ public class UserDao {
                             rs.getInt("followCheck")
                     ),userId,profileUserId);
         }
+
+    public int checkUserPhoneNumber(PatchPasswordRes patchPasswordRes) {
+        String checkUserPhoneNubmerQuery="select exists(select id from User where userId=? and phoneNumber=?)";
+        Object[] checkUserPhoneNumberParams = new Object[]{patchPasswordRes.getUserId(),patchPasswordRes.getPhoneNumber()};
+        return this.jdbcTemplate.queryForObject(
+                checkUserPhoneNubmerQuery,int.class,checkUserPhoneNumberParams);
     }
+
+    public void modifyPassword(PatchPasswordRes patchPasswordRes) {
+        String modifyPasswordQuery="update User set password=? where userId=? and phoneNumber=? ";
+        Object[] modifyPasswordParam=new Object[]{patchPasswordRes.getPassword(),patchPasswordRes.getUserId(),patchPasswordRes.getPhoneNumber()};
+        this.jdbcTemplate.update(modifyPasswordQuery,modifyPasswordParam);
+    }
+
+    public void modifyPublicTrue(Long userId) {
+        String modifyPublicQuery="update User set userPublic='TRUE' where id=?";
+        this.jdbcTemplate.update(modifyPublicQuery,userId);
+    }
+
+    public void modifyPublicFalse(Long userId) {
+        String modifyPublicQuery="update User set userPublic='FALSE' where id=?";
+        this.jdbcTemplate.update(modifyPublicQuery,userId);
+    }
+
+    public int checkFollow(Long userId, Long profileUserId) {
+        String checkFollowQuery = "select exists(select id from Following where userId=? and followUserId=?)";
+        Object[] checkFollowParam = new Object[]{userId,profileUserId};
+        return this.jdbcTemplate.queryForObject(checkFollowQuery,
+                int.class, checkFollowParam);
+    }
+}
 

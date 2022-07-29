@@ -247,4 +247,14 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void modifyPassword(PatchPasswordRes patchPasswordRes) throws BaseException {
+        try {
+            String pwd = new SHA256().encrypt(patchPasswordRes.getPassword());
+            patchPasswordRes.setPassword(pwd);
+            userDao.modifyPassword(patchPasswordRes);
+        }catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

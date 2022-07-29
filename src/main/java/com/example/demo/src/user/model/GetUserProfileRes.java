@@ -21,5 +21,5 @@ public class GetUserProfileRes {
     private int followerCnt;
     private int followingCNt;
     private int followCheck;
-    private List<GetProfileBoardRes> getProfileBoardRes;
+    private List<GetProfileBoardRes> getProfileBoard;
 }

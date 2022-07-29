@@ -1,5 +1,6 @@
 package com.example.demo.src.user;
 
+import com.example.demo.src.follow.FollowProvider;
 import com.example.demo.src.follow.FollowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,14 +36,18 @@ public class UserController {
     @Autowired
     FollowService followService;
 
+    @Autowired
+    FollowProvider followProvider;
 
 
 
-    public UserController(UserProvider userProvider, UserService userService, JwtService jwtService,FollowService followService){
+
+    public UserController(UserProvider userProvider, UserService userService, JwtService jwtService,FollowService followService,FollowProvider followProvider){
         this.userProvider = userProvider;
         this.userService = userService;
         this.jwtService = jwtService;
         this.followService=followService;
+        this.followProvider=followProvider;
     }
 
 
@@ -167,6 +172,8 @@ public class UserController {
             //userId와 접근한 유저가 같은지 확인
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
+            }if(userProvider.checkUser(userId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
             }
             List<GetMyProfileRes> getMyProfileRes = userProvider.getMyProfile(userId);
             return new BaseResponse<>(getMyProfileRes);
@@ -182,19 +189,30 @@ public class UserController {
         try {
             Long userIdByJwt = jwtService.getUserIdx();
             //userId와 접근한 유저가 같은지 확인
+
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            if(userProvider.getUserPublic(profileUserId)=="FALSE"){
-                return new BaseResponse<>(NOT_PUBLIC_USER);
             }
             if(userProvider.checkUser(profileUserId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(userProvider.checkBlock(userId,profileUserId)!=1){
+            if(userProvider.checkBlock(userId,profileUserId)==1){
                 return new BaseResponse<>(BLOCKED_BY_PROFILE_USER);
             }
-            List<GetUserProfileRes> getUserProfileRes = userProvider.getUserProfile(userId,profileUserId);
+            List<GetUserProfileRes> getUserProfileRes = null;
+            if(userProvider.getUserPublic(profileUserId).equals("FALSE")){
+                if(userProvider.checkFollow(userId,profileUserId)==1){
+                    getUserProfileRes = userProvider.getUserProfile(userId,profileUserId);
+                    return new BaseResponse<>(getUserProfileRes);
+
+                }else {
+                    return new BaseResponse<>(NOT_PUBLIC_USER);
+                }
+            }
+
+
+
+            getUserProfileRes = userProvider.getUserProfile(userId,profileUserId);
             return new BaseResponse<>(getUserProfileRes);
         }catch(BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -352,6 +370,47 @@ public class UserController {
             }
             List<GetClosedProfileRes> getClosedProfileRes = userProvider.getCloesdProfile(userId,profileUserId);
             return new BaseResponse<>(getClosedProfileRes);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    //비밀번호를 변경할 때 유저 아이디와 전화번호를 같이 입력받고 계정에 정보와 일치하는지 확인 후 변경
+    @ResponseBody
+    @PatchMapping("/password")
+    public BaseResponse<String> modifyPassword(@RequestBody PatchPasswordRes patchPasswordRes){
+        try {
+            if(userProvider.checkUserPhoneNumber(patchPasswordRes)==0){
+                return new BaseResponse<>(NOT_SUCCESS_USER_INFO);
+            }
+            userService.modifyPassword(patchPasswordRes);
+            String result="비밀번호 변경 성공";
+            return new BaseResponse<>(result);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/public/{userId}")
+    public BaseResponse<String> modifyPublic(@PathVariable("userId")Long userId){
+        try {
+            Long userIdByJwt = jwtService.getUserIdx();
+            //userId와 접근한 유저가 같은지 확인
+            if (userId != userIdByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            String result="";
+            if(userProvider.getUserPublic(userId).equals("FALSE")){
+                userProvider.modifyPublicTrue(userId);
+                result="공개 계정 설정 성공";
+            }
+            else if(userProvider.getUserPublic(userId).equals("TRUE")){
+                userProvider.modifyPublicFalse(userId);
+                result="비공개 계정 설정 성공";
+            }
+
+            return new BaseResponse<>(result);
         }catch(BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
