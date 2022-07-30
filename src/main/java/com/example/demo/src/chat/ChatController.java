@@ -83,9 +83,9 @@ public class ChatController {
 
     //디엠 메세지 불러오기
     @ResponseBody
-    @GetMapping("/chatMessage/{chatId}")
-    public BaseResponse<List<GetChatMessageRes>> getChatMessageRes(@PathVariable("chatId") Long chatId) {
-        List<GetChatMessageRes> getChatMessageRes = chatService.getAllChatMessage(chatId);
+    @GetMapping("/chatMessage/{userId}/{chatId}")
+    public BaseResponse<List<GetChatRoomInfo>> getChatMessageRes(@PathVariable("userId") Long userId,@PathVariable("chatId") Long chatId) {
+        List<GetChatRoomInfo> getChatMessageRes = chatService.getAllChatMessage(userId,chatId);
         return new BaseResponse<>(getChatMessageRes);
     }
 }

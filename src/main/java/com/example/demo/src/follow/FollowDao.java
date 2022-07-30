@@ -1,5 +1,6 @@
 package com.example.demo.src.follow;
 
+import com.example.demo.src.follow.model.GetFollowKeepRes;
 import com.example.demo.src.user.model.GetProfileBoardRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,5 +58,51 @@ public class FollowDao {
         };
 
         this.jdbcTemplate.update(unFollowQuery,unFollowParams);
+    }
+
+    public int checkUser(Long id){
+        String checkIdQuery = "select exists(select id from User where id = ?)";
+        return this.jdbcTemplate.queryForObject(checkIdQuery,
+                int.class,
+                id);
+    }
+
+    public Long getRequestUserId(Long requestId) {
+        String getRequestUserIdQuery = "select userId from FollowRequest where id=?";
+        return this.jdbcTemplate.queryForObject(getRequestUserIdQuery,
+                Long.class,
+                requestId);
+    }
+
+    public void deleteRequest(Long requestId) {
+        String deleteRequestQuery="delete from FollowRequest where id=?";
+        this.jdbcTemplate.update(deleteRequestQuery,requestId);
+    }
+
+    public Long getUserId(Long requestId) {
+        String getRequestUserIdQuery = "select requestUserId from FollowRequest where id=?";
+        return this.jdbcTemplate.queryForObject(getRequestUserIdQuery,
+                Long.class,
+                requestId);
+    }
+
+    public List<GetFollowKeepRes> getFollowKeep(Long userId) {
+        String getFollowKeepQuery="select FR.id'requestId',U.id'userId',U.profileImg'profileImgUrl',U.userId'userLoginId',U.name'userName'\n" +
+                "from FollowRequest FR join User U on FR.userId= U.id\n" +
+                "where FR.requestUserId = ?";
+        return this.jdbcTemplate.query(getFollowKeepQuery,
+                (rs,rowNum) ->new GetFollowKeepRes(
+                        rs.getLong("requestId"),
+                        rs.getLong("userId"),
+                        rs.getString("profileImgUrl"),
+                        rs.getString("userLoginId"),
+                        rs.getString("userName")
+
+                ),userId);
+    }
+
+    public int checkRequest(Long requestId) {
+        String checkIdQuery = "select exists(select id from FollowRequest where id = ?)";
+        return this.jdbcTemplate.queryForObject(checkIdQuery, int.class, requestId);
     }
 }

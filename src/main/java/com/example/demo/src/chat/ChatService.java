@@ -1,7 +1,6 @@
 package com.example.demo.src.chat;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponse;
 import com.example.demo.src.chat.model.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +32,7 @@ interface ChatServiceIF {
 
     public boolean delChatMember(Long chatId, Long userId);
     public void addChatMessage(Long chatId, Long userId,String message);
-    public List<GetChatMessageRes> getAllChatMessage(Long chatId);
+    public List<GetChatRoomInfo> getAllChatMessage(Long userId, Long chatId);
 
     // 채팅방 멤버 정보 저장 
 
@@ -182,8 +181,8 @@ public class ChatService implements ChatServiceIF{
 
     // 모든 채팅방 메시지 반환
     @Override
-    public List<GetChatMessageRes> getAllChatMessage(Long chatId){
-        return chatDao.getAllChatMessage(chatId);
+    public List<GetChatRoomInfo> getAllChatMessage(Long userId, Long chatId){
+        return chatDao.getAllChatMessage(userId,chatId);
     }
 
     // 채팅방에 메시지 추가

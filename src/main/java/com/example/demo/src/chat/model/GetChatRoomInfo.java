@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetChatMessageRes {
+public class GetChatRoomInfo {
+    private Long chatId;
     private Long userId;
     private String profileImgUrl;
-    private Long messageId;
-    private String message;
-    private String messageTime;
-    private int likeCheck;
+    private String userName;
+    private String userLoginId;
+    private List<GetChatMessageRes> messageList;
 }

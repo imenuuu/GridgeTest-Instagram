@@ -1,7 +1,6 @@
 package com.example.demo.src.follow;
 
 import com.example.demo.config.BaseException;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,7 @@ public class FollowService {
         }
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void createFollow(Long userId, Long followUserId) throws BaseException {
         try {
             followDao.createFollow(userId, followUserId);
@@ -37,6 +36,16 @@ public class FollowService {
     public void unFollow(Long userId, Long blockUserId) throws BaseException {
         try {
             followDao.unFollow(userId, blockUserId);
+        }
+        catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteRequest(Long requestId) throws BaseException {
+        try {
+            followDao.deleteRequest(requestId);
         }
         catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);

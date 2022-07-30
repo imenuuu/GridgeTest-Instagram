@@ -2,16 +2,16 @@ package com.example.demo.src.follow;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.user.UserProvider;
-import com.example.demo.src.user.UserService;
-import com.example.demo.src.user.model.PatchUserReq;
+import com.example.demo.src.follow.model.GetFollowKeepRes;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.demo.config.BaseResponseStatus.INVALID_USER_JWT;
+import java.util.List;
+
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/follows")
@@ -40,6 +40,9 @@ public class FollowController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
+            if(followProvider.checkUser(followUserId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
             String result = "";
             //공개 계정인지 비공개 계정인지 확인
             if(followProvider.getUserPublic(followUserId).equals("TRUE")){
@@ -66,6 +69,9 @@ public class FollowController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
+            if(followProvider.checkUser(followUserId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
             followService.unFollow(userId,followUserId);
             String result="언팔로우 성공";
 
@@ -75,6 +81,86 @@ public class FollowController {
         }
     }
 
+    @ResponseBody
+    @PostMapping("/request/{userId}/{requestId}")
+    public BaseResponse<String> agreeFollow(@PathVariable("userId") Long userId,@PathVariable("requestId") Long requestId){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            Long followUserId=followProvider.getRequestUserId(requestId);
+            followService.deleteRequest(requestId);
+            followService.createFollow(followUserId,userId);
+            String result="팔로우 수락 완료";
+
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @DeleteMapping("/keep/{userId}/{requestId}")
+    public BaseResponse<String> deleteFollowRequest(@PathVariable("userId") Long userId,@PathVariable("requestId") Long requestId){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(followProvider.checkRequest(requestId)==1){
+                return new BaseResponse<>(NOT_EXIST_FOLLOW);
+            }
+            if(followProvider.getUserId(requestId)!=userId){
+                return new BaseResponse<>(INVALID_USER_ACCESS);
+            }
+            followService.deleteRequest(requestId);
+            String result="팔로우 요청 거절 완료";
+
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @DeleteMapping("/request/{userId}/{requestId}")
+    public BaseResponse<String> cancelFollowRequest(@PathVariable("userId") Long userId,@PathVariable("requestId") Long requestId){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(followProvider.getRequestUserId(requestId)!=userId){
+                return new BaseResponse<>(INVALID_USER_ACCESS);
+            }
+            followService.deleteRequest(requestId);
+            String result="팔로우 요청 취소 완료";
+
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/keep/{userId}")
+    public BaseResponse<List<GetFollowKeepRes>> getFollowKeep(@PathVariable("userId") Long userId){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            List<GetFollowKeepRes> getFollowKeepRes=followProvider.getFollowKeep(userId);
+            return new BaseResponse<>(getFollowKeepRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
 
 }

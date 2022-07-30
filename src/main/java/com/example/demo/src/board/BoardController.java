@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.INVALID_USER_JWT;
+import static com.example.demo.config.BaseResponseStatus.LONG_NUMBER_CHARACTERS;
 
 @RestController
 @RequestMapping("/boards")
@@ -43,6 +44,9 @@ public class BoardController {
             Long userIdxByJwt = jwtService.getUserIdx();
             if (userId != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(postBoardReq.getDescription().length()>=1000){
+                return new BaseResponse<>(LONG_NUMBER_CHARACTERS);
             }
             Long lastInsertId = boardService.createBoard(userId,postBoardReq.getDescription());
             for(BoardImg boardImg: postBoardReq.getBoardImg()){

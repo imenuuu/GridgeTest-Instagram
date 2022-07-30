@@ -33,8 +33,17 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_ID(false, 2016, "아이디 형식을 확인해주세요."),
     POST_USERS_EXISTS_ID(false,2017,"중복된 아이디 입니다."),
     NOT_EXIST_KAKAO_USER(false,2018,"등록된 카카오 유저가 아닙니다 추가정보를 입력해주세요."),
+    POST_USERS_INVALID_PHONE(false,2019,"전화번호 형식을 학인해주세요"),
+    LONG_USER_ID_CHARACTERS(false,2040,"아이디 20자 미만으로 입력해주세요"),
 
 
+    NOT_SUCCESS_USER_INFO(false,2020,"계정 정보와 일치 하지 않음"),
+
+
+    INVALID_USER_ACCESS(false,2021,"권한이 없습니다"),
+    NOT_EXIST_FOLLOW(false,2022,"팔로우 요청이 존재하지 않습니다."),
+
+    LONG_NUMBER_CHARACTERS(false,2023,"글자수 1000자 미만으로 입력해주세요"),
 
     /**
      * 3000 : Response 오류
@@ -58,8 +67,7 @@ public enum BaseResponseStatus {
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
 
     PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패 하였습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패 하였습니다."),
-    NOT_SUCCESS_USER_INFO(false,4013,"계정 정보와 일치 하지 않음");
+    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패 하였습니다.");
 
     // 5000 : 필요시 만들어서 쓰세요
     // 6000 : 필요시 만들어서 쓰세요

@@ -298,5 +298,10 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(checkFollowQuery,
                 int.class, checkFollowParam);
     }
+
+    public void logIn(Long userId) {
+        String logInQuery = "update User set logInDate=now() where id=?\n";
+        this.jdbcTemplate.update(logInQuery,userId);
+    }
 }
 

@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexId;
+import static com.example.demo.utils.ValidationRegex.isRegexPhoneNumber;
 
 @RestController
 @RequestMapping("/users")
@@ -100,9 +101,15 @@ public class UserController {
         if(postUserReq.getUserId() == null){
             return new BaseResponse<>(POST_USERS_EMPTY_ID);
         }
+        if(postUserReq.getUserId().length()>=20){
+            return new BaseResponse<>(LONG_USER_ID_CHARACTERS);
+        }
         //아이디 정규표현
         if (!isRegexId(postUserReq.getUserId())) {
             return new BaseResponse<>(POST_USERS_INVALID_ID);
+        }
+        if(!isRegexPhoneNumber(postUserReq.getPhoneNumber())){
+            return new BaseResponse<>(POST_USERS_INVALID_PHONE);
         }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
@@ -124,6 +131,7 @@ public class UserController {
             // TODO: 로그인 값들에 대한 형식적인 validatin 처리해주셔야합니다!
             // TODO: 유저의 status ex) 비활성화된 유저, 탈퇴한 유저 등을 관리해주고 있다면 해당 부분에 대한 validation 처리도 해주셔야합니다.
             PostLoginRes postLoginRes = userProvider.logIn(postLoginReq);
+            userService.logIn(postLoginRes.getUserId());
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -160,6 +168,9 @@ public class UserController {
     @ResponseBody
     @GetMapping("/check/sendSMS")
     public BaseResponse<String> sendSMS(@RequestParam(value="to")String to)throws CoolsmsException {
+        if(!isRegexPhoneNumber(to)){
+            return new BaseResponse<>(POST_USERS_INVALID_PHONE);
+        }
         String result = userService.PhoneNumberCheck(to);
         return new BaseResponse<>(result);
     }
@@ -252,6 +263,7 @@ public class UserController {
 
             KakaoInfo kakaoInfo = userService.getKakaoUser(postKakaoLogInReq.getAccessToken());
             PostLoginRes postLoginRes = null;
+
             //만약 유저 정보가 없으면 회원가입창으로 이동한다.
             if (userProvider.checkKakaoUser(kakaoInfo.getKakaoEmail()) == 0) {
                 return new BaseResponse<>(NOT_EXIST_KAKAO_USER);
@@ -260,6 +272,7 @@ public class UserController {
             else if (userProvider.checkKakaoUser(kakaoInfo.getKakaoEmail()) == 1) {
                 postLoginRes = userProvider.logInKakao(kakaoInfo.getKakaoEmail());
             }
+            userService.logIn(postLoginRes.getUserId());
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -274,6 +287,12 @@ public class UserController {
         if(postKakaoUserReq.getUserId() == null){
             return new BaseResponse<>(POST_USERS_EMPTY_ID);
         }
+        if(postKakaoUserReq.getUserId().length()>=20){
+            return new BaseResponse<>(LONG_USER_ID_CHARACTERS);
+        }
+        if(!isRegexPhoneNumber(postKakaoUserReq.getPhoneNumber())){
+            return new BaseResponse<>(POST_USERS_INVALID_PHONE);
+        }
         //아이디 정규표현
         if (!isRegexId(postKakaoUserReq.getUserId())) {
             return new BaseResponse<>(POST_USERS_INVALID_ID);
@@ -286,6 +305,7 @@ public class UserController {
                 userService.createKakaoUser(kakaoInfo,postUserRes.getUserId());
 
             }
+            userService.logIn(postUserRes.getUserId());
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -322,6 +342,12 @@ public class UserController {
         try {
             Long userIdByJwt = jwtService.getUserIdx();
             //userId와 접근한 유저가 같은지 확인
+            if(patchProfileReq.getUserId().isEmpty()){
+                return new BaseResponse<>(POST_USERS_EMPTY_ID);
+            }
+            if(patchProfileReq.getUserId().length()>=20){
+                return new BaseResponse<>(LONG_USER_ID_CHARACTERS);
+            }
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
@@ -354,7 +380,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @GetMapping("/cloesdProfile/{userId}/{profileUserId}")
+    @GetMapping("/closedProfile/{userId}/{profileUserId}")
     public BaseResponse<List<GetClosedProfileRes>> closedProfile(@PathVariable("userId") Long userId,@PathVariable("profileUserId") Long profileUserId){
         try {
             Long userIdByJwt = jwtService.getUserIdx();
@@ -380,6 +406,10 @@ public class UserController {
     @PatchMapping("/password")
     public BaseResponse<String> modifyPassword(@RequestBody PatchPasswordRes patchPasswordRes){
         try {
+            //userId와 접근한 유저가 같은지 확인
+            if(!isRegexPhoneNumber(patchPasswordRes.getPhoneNumber())){
+                return new BaseResponse<>(POST_USERS_INVALID_PHONE);
+            }
             if(userProvider.checkUserPhoneNumber(patchPasswordRes)==0){
                 return new BaseResponse<>(NOT_SUCCESS_USER_INFO);
             }
