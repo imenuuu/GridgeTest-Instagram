@@ -45,6 +45,11 @@ public enum BaseResponseStatus {
 
     LONG_NUMBER_CHARACTERS(false,2023,"글자수 1000자 미만으로 입력해주세요"),
 
+    POST_COMMENT_EMPTY(false,2030,"댓글내용을 입력해주세요"),
+    LONG_COMMENT_CHARACTER(false,2031,"200자 이하로 입력해주세요"),
+    NOT_EXIST_BOARD(false,2032,"존재 하지 않는 게시물입니다."),
+    NOT_EXIST_COMMENT(false,2033,"존재 하지 않는 댓글입니다."),
+    NOT_EXIST_RECOMMENT(false,2034,"존재 하지 않는 대댓글입니다."),
     /**
      * 3000 : Response 오류
      */
@@ -54,6 +59,7 @@ public enum BaseResponseStatus {
     // [POST] /users
     DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,3014,"없는 아이디거나 비밀번호가 틀렸습니다."),
+
 
 
 
