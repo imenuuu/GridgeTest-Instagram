@@ -44,6 +44,7 @@ public enum BaseResponseStatus {
     NOT_EXIST_FOLLOW(false,2022,"팔로우 요청이 존재하지 않습니다."),
 
     LONG_NUMBER_CHARACTERS(false,2023,"글자수 1000자 미만으로 입력해주세요"),
+    MANY_PHOTO_BOARD(false,2024,"사진을 10장이하로 게시해주세요"),
 
     POST_COMMENT_EMPTY(false,2030,"댓글내용을 입력해주세요"),
     LONG_COMMENT_CHARACTER(false,2031,"200자 이하로 입력해주세요"),

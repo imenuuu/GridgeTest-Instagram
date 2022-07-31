@@ -10,14 +10,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class GetBoardRes {
-    private String profileImgUrl;
     private Long userId;
-    private String userName;
+    private String profileImgUrl;
+    private String userLoginId;
     private Long boardId;
     private String description;
     private int likeCheck;
     private int likeCnt;
     private int commentCnt;
     private String boardTime;
-    private List<GetBoardImgRes> getBoardImgRes;
+    private List<GetBoardImgRes> boardImgList;
 }

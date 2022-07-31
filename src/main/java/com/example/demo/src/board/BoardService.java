@@ -1,5 +1,7 @@
 package com.example.demo.src.board;
 
+import com.example.demo.src.board.model.PatchBoardReq;
+import com.example.demo.src.board.model.PostBoardReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +20,15 @@ public class BoardService {
         this.boardProvider = boardProvider;
     }
 
-    public Long createBoard(Long userId, String description) {
-        return boardDao.createBoard(userId,description);
+    public Long createBoard(PostBoardReq postBoardReq) {
+        return boardDao.createBoard(postBoardReq);
     }
 
     public void createBoardImg(Long userId, Long lastInsertId, String boardImgUrl) {
         boardDao.createBoardImg(userId,lastInsertId,boardImgUrl);
+    }
+
+    public void patchBoard(PatchBoardReq patchBoardReq) {
+        boardDao.patchBoard(patchBoardReq);
     }
 }

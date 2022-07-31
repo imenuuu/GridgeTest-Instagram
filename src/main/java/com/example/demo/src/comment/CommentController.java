@@ -3,6 +3,7 @@ package com.example.demo.src.comment;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.comment.model.GetCommentInfo;
+import com.example.demo.src.comment.model.GetReCommentReq;
 import com.example.demo.src.comment.model.PostCommentReq;
 import com.example.demo.src.comment.model.PostReCommentReq;
 import com.example.demo.src.follow.FollowProvider;
@@ -37,21 +38,38 @@ public class CommentController {
 
     @ResponseBody
     @GetMapping("/{userId}/{boardId}")
-    public BaseResponse<List<GetCommentInfo>> getComment(@PathVariable("userId")Long userId,@PathVariable("boardId")Long boardId){
+    public BaseResponse<List<GetCommentInfo>> getComment(@PathVariable("userId")Long userId,@PathVariable("boardId")Long boardId,@RequestParam(value = "paging",defaultValue = "1")int paging){
         try {
             //jwt에서 idx 추출.
             Long userIdByJwt = jwtService.getUserIdx();
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            List<GetCommentInfo> getCommentInfo=commentProvider.getComment(userId,boardId);
+            List<GetCommentInfo> getCommentInfo=commentProvider.getComment(userId,boardId,paging);
             return new BaseResponse<>(getCommentInfo);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
     @ResponseBody
-    @PostMapping("/")
+    @GetMapping("/re/{userId}/{commentId}")
+    public BaseResponse<List<GetReCommentReq>> getReComment(@PathVariable("userId")Long userId, @PathVariable("commentId")Long commentId,@RequestParam(value = "paging",defaultValue = "1")int paging){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            List<GetReCommentReq> getReCommentReq=commentProvider.getReComment(userId,commentId,paging);
+            return new BaseResponse<>(getReCommentReq);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @PostMapping("")
     public BaseResponse<String> postComment(@RequestBody PostCommentReq postCommentReq){
         try {
             //jwt에서 idx 추출.

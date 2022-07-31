@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostBoardReq {
-    private List<BoardImg> boardImg;
+public class PatchBoardReq {
     private Long userId;
+    private Long boardId;
     private String description;
 }

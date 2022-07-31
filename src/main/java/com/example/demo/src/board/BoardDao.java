@@ -2,6 +2,8 @@ package com.example.demo.src.board;
 
 import com.example.demo.src.board.model.GetBoardImgRes;
 import com.example.demo.src.board.model.GetBoardRes;
+import com.example.demo.src.board.model.PatchBoardReq;
+import com.example.demo.src.board.model.PostBoardReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,16 +15,18 @@ import java.util.List;
 public class BoardDao {
     private JdbcTemplate jdbcTemplate;
 
-    List<GetBoardImgRes> getBoardImgRes;
+    List<GetBoardImgRes> boardImgList;
 
     @Autowired
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public Long createBoard(Long userId, String description) {
+    public Long createBoard(PostBoardReq postBoardReq) {
         String createBoardQuery="insert into Board(userId,description) values(?,?) ";
-        Object[] createBoardParams = new Object[]{userId,description};
+        Object[] createBoardParams = new Object[]{
+                postBoardReq.getUserId(),postBoardReq.getDescription()}
+                ;
 
         this.jdbcTemplate.update(createBoardQuery,createBoardParams);
 
@@ -42,15 +46,15 @@ public class BoardDao {
 
     public List<GetBoardRes> getMainBoard(Long userId,int paging) {
 
-        String getMainboardQuery="select U.profileImg 'profileImgUrl',\n" +
-                "       U.id as'userId',\n" +
-                "       U.userid as 'userName',\n" +
+        String getMainboardQuery="select U.id as'userId',U.profileImg 'profileImgUrl',\n" +
+                "       \n" +
+                "       U.userid as 'userLoginId',\n" +
                 "       B.id                                                            'boardId',\n" +
                 "       B.description,\n" +
                 "       (select exists(select BL.id from BoardLike BL where BL.boardId=B.id and BL.userId=F.userId))'likeCheck',\n" +
                 "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id) 'likeCnt',\n" +
                 "       ((select count(C.id) from Comment C where C.boardId=B.id)+\n" +
-                "       (select count(RC.id) from ReComment RC where RC.boardId=B.id))'commentCnt',\n" +
+                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id))'commentCnt',\n" +
                 "\n" +
                 "       case\n" +
                 "           when YEAR(B.createdDate) < YEAR(now())\n" +
@@ -77,22 +81,33 @@ public class BoardDao {
                 "from BoardImg BI\n" +
                 "         join Board B on B.id = BI.boardId\n" +
                 "where BI.boardId = ?";
+        Object[] getBoardListParams = new Object[]{
+                userId,(paging-1)*10,paging*10
+        };
         return this.jdbcTemplate.query(getMainboardQuery,
                 (rs,rowNum) ->new GetBoardRes(
-                        rs.getString("profileImgUrl"),
                         rs.getLong("userId"),
-                        rs.getString("userName"),
+                        rs.getString("profileImgUrl"),
+                        rs.getString("userLoginId"),
                         rs.getLong("boardId"),
                         rs.getString("description"),
                         rs.getInt("likeCheck"),
                         rs.getInt("likeCnt"),
                         rs.getInt("commentCnt"),
                         rs.getString("boardTime"),
-                        getBoardImgRes=this.jdbcTemplate.query(getBoardImgQuery,
+                        boardImgList=this.jdbcTemplate.query(getBoardImgQuery,
                                 (rk,rownum)->new GetBoardImgRes(
                                         rk.getLong("imgId"),
                                         rk.getString("imgUrl")
                                 ),rs.getLong("boardId"))
-                ),userId);
+                ),getBoardListParams);
+    }
+
+    public void patchBoard(PatchBoardReq patchBoardReq) {
+        String patchBoardQuery="update Board set description=? where id=?";
+        Object[] patchBoardParams = new Object[]{
+                patchBoardReq.getDescription(),patchBoardReq.getBoardId()
+        };
+        this.jdbcTemplate.update(patchBoardQuery,patchBoardParams);
     }
 }

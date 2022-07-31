@@ -81,8 +81,9 @@ public class FollowController {
         }
     }
 
+    //팔로우요청수락
     @ResponseBody
-    @PostMapping("/request/{userId}/{requestId}")
+    @PostMapping("/keep/{userId}/{requestId}")
     public BaseResponse<String> agreeFollow(@PathVariable("userId") Long userId,@PathVariable("requestId") Long requestId){
         try {
             //jwt에서 idx 추출.
@@ -90,6 +91,10 @@ public class FollowController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
+            if(followProvider.checkRequest(requestId)==1){
+                return new BaseResponse<>(NOT_EXIST_FOLLOW);
+            }
+
             Long followUserId=followProvider.getRequestUserId(requestId);
             followService.deleteRequest(requestId);
             followService.createFollow(followUserId,userId);

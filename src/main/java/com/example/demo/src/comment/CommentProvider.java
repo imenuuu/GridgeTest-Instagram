@@ -2,6 +2,7 @@ package com.example.demo.src.comment;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.comment.model.GetCommentInfo;
+import com.example.demo.src.comment.model.GetReCommentReq;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +16,8 @@ public class CommentProvider {
     public CommentProvider(CommentDao commentDao) {
         this.commentDao = commentDao;
     }
-    public List<GetCommentInfo> getComment(Long userId, Long boardId) {
-        List<GetCommentInfo> getComment= commentDao.getComment(userId, boardId);
+    public List<GetCommentInfo> getComment(Long userId, Long boardId, int paging) {
+        List<GetCommentInfo> getComment= commentDao.getComment(userId, boardId,paging);
         return getComment;
 
     }
@@ -38,5 +39,9 @@ public class CommentProvider {
 
     public int checkReComment(Long reCommentId) {
         return commentDao.checkReComment(reCommentId);
+    }
+
+    public List<GetReCommentReq> getReComment(Long userId, Long commentId, int paging) {
+        return commentDao.getReComment(userId,commentId,paging);
     }
 }

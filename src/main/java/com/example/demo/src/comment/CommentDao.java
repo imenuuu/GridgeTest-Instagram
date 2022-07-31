@@ -1,11 +1,6 @@
 package com.example.demo.src.comment;
 
-import com.example.demo.src.board.model.GetBoardImgRes;
-import com.example.demo.src.comment.model.GetCommentInfo;
-import com.example.demo.src.comment.model.GetCommentRes;
-import com.example.demo.src.comment.model.PostCommentReq;
-import com.example.demo.src.comment.model.PostReCommentReq;
-import com.example.demo.src.user.model.GetProfileBoardRes;
+import com.example.demo.src.comment.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,7 +17,7 @@ public class CommentDao {
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    public List<GetCommentInfo> getComment(Long userId, Long boardId) {
+    public List<GetCommentInfo> getComment(Long userId, Long boardId, int paging) {
         String getBoardInfoQuery="\n" +
                 "select U.id                                                                'userId',\n" +
                 "       U.profileImg                                                        'profileImgUrl',\n" +
@@ -65,8 +60,8 @@ public class CommentDao {
                 "(select exists(select id from CommentLike CL where CL.commentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join Comment C on C.userId = U.id\n" +
-                "where C.boardId = ? order by C.createdDate desc;";
-        Object[] getCommentParams = new Object[]{userId,boardId};
+                "where C.boardId = ? order by C.createdDate desc limit ?,?;";
+        Object[] getCommentParams = new Object[]{userId,boardId,(paging-1)*10,paging*10};
         return this.jdbcTemplate.query(getBoardInfoQuery,
                 (rs,rowNum)->new GetCommentInfo(
                         rs.getLong("userId"),
@@ -91,7 +86,7 @@ public class CommentDao {
 
     public void postComment(PostCommentReq postCommentReq) {
         String postCommentQuery="insert into Comment(userId,boardId,comment) values(?,?,?)";
-        Object[] getCommentParams = new Object[]{postCommentReq.getUserId(),postCommentReq.getBoardId(),postCommentReq.getComment()};
+        Object[] getCommentParams = new Object[]{postCommentReq.getUserId(),postCommentReq.getBoardId(),postCommentReq.getComment(),};
         this.jdbcTemplate.update(postCommentQuery,getCommentParams);
     }
 
@@ -153,5 +148,45 @@ public class CommentDao {
         Object[] deleteLikeParams = new Object[]{userId,reCommentId};
 
         this.jdbcTemplate.update(deleteLikeQuery,deleteLikeParams);
+    }
+
+    public List<GetReCommentReq> getReComment(Long userId, Long commentId, int paging) {
+        String getReCommentQuery="select U.id                                                                'userId',\n" +
+                "       U.profileImg                                                        'profileImgUrl',\n" +
+                "       U.userId                                                            'userLoginId',\n" +
+                "       C.id'reCommentId',\n" +
+                "       reComment,\n" +
+                "               case\n" +
+                "                   when TIMESTAMPDIFF(WEEK, C.createdDate, now())>1\n" +
+                "                   then concat(TIMESTAMPDIFF(WEEK, C.createdDate, now()),'주 전')\n" +
+                "                   when TIMESTAMPDIFF(minute, C.createdDate, now()) < 1\n" +
+                "                       then concat(TIMESTAMPDIFF(second, C.createdDate, now()),'초 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, C.createdDate, now()) > 24\n" +
+                "                       then concat(TIMESTAMPDIFF(DAY, C.createdDate, now()), '일 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, C.createdDate, now()) < 1\n" +
+                "                       then concat(TIMESTAMPDIFF(minute, C.createdDate, now()), '분 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, C.createdDate, now()) < 24\n" +
+                "                       then concat(TIMESTAMPDIFF(hour, C.createdDate, now()), '시간 전')\n" +
+                "                   end as 'reCommentTime',\n" +
+                "       (select count(CL.id) from ReCommentLike CL where CL.reCommentId = C.id) 'likeCnt',\n" +
+                "       (select exists(select id from ReCommentLike CL where CL.reCommentId=C.id and CL.userId=?))'likeCheck'\n" +
+                "from User U\n" +
+                "         join ReComment C on C.userId = U.id\n" +
+                "where C.commentId = ? order by C.createdDate desc limit ?,?;\n";
+        Object[] getReComment = new Object[]{
+                userId,commentId,(paging-1)*10,paging*10
+        };
+
+        return this.jdbcTemplate.query(getReCommentQuery,
+                (rs,row) ->new GetReCommentReq(
+                        rs.getLong("userId"),
+                        rs.getString("profileImgUrl"),
+                        rs.getString("userLoginId"),
+                        rs.getLong("reCommentId"),
+                        rs.getString("reComment"),
+                        rs.getString("reCommentTime"),
+                        rs.getInt("likeCnt"),
+                        rs.getInt("likeCheck")
+                ),getReComment);
     }
 }
