@@ -44,15 +44,21 @@ public class FollowController {
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
             String result = "";
+            if(followProvider.checkFollow(userId,followUserId)!=1){
+                if(followProvider.getUserPublic(followUserId).equals("TRUE")){
+                    followService.createFollow(userId,followUserId);
+                    result="팔로우 성공";
+                }
+                else{
+                    followService.requestFollow(userId,followUserId);
+                    result="팔로우 요청 성공";
+                }
+            }else{
+                followService.unFollow(userId,followUserId);
+                result="팔로우 취소 성공";
+            }
             //공개 계정인지 비공개 계정인지 확인
-            if(followProvider.getUserPublic(followUserId).equals("TRUE")){
-                followService.createFollow(userId,followUserId);
-                result="팔로우 성공";
-            }
-            else{
-                followService.requestFollow(userId,followUserId);
-                result="팔로우 요청 성공";
-            }
+
 
             return new BaseResponse<>(result);
         } catch (BaseException exception) {
@@ -60,26 +66,7 @@ public class FollowController {
         }
     }
 
-    @ResponseBody
-    @DeleteMapping("/{userId}/{followUserId}")
-    public BaseResponse<String> unFollowUser(@PathVariable("userId") Long userId,@PathVariable("followUserId") Long followUserId){
-        try {
-            //jwt에서 idx 추출.
-            Long userIdByJwt = jwtService.getUserIdx();
-            if(userId != userIdByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            if(followProvider.checkUser(followUserId)!=1){
-                return new BaseResponse<>(NOT_EXIST_USER);
-            }
-            followService.unFollow(userId,followUserId);
-            String result="언팔로우 성공";
 
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
 
     //팔로우요청수락
     @ResponseBody
@@ -91,9 +78,10 @@ public class FollowController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(followProvider.checkRequest(requestId)==1){
+            if(followProvider.checkRequest(requestId)!=1){
                 return new BaseResponse<>(NOT_EXIST_FOLLOW);
             }
+
 
             Long followUserId=followProvider.getRequestUserId(requestId);
             followService.deleteRequest(requestId);
@@ -115,7 +103,7 @@ public class FollowController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(followProvider.checkRequest(requestId)==1){
+            if(followProvider.checkRequest(requestId)!=1){
                 return new BaseResponse<>(NOT_EXIST_FOLLOW);
             }
             if(followProvider.getUserId(requestId)!=userId){
@@ -138,6 +126,9 @@ public class FollowController {
             Long userIdByJwt = jwtService.getUserIdx();
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(followProvider.checkRequest(requestId)!=1){
+                return new BaseResponse<>(NOT_EXIST_FOLLOW);
             }
             if(followProvider.getRequestUserId(requestId)!=userId){
                 return new BaseResponse<>(INVALID_USER_ACCESS);

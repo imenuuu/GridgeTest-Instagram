@@ -105,4 +105,12 @@ public class FollowDao {
         String checkIdQuery = "select exists(select id from FollowRequest where id = ?)";
         return this.jdbcTemplate.queryForObject(checkIdQuery, int.class, requestId);
     }
+
+    public int checkFollow(Long userId, Long followUserId) {
+        String checkIdQuery = "select exists(select id from Following where userId=? and followUserId=?)";
+        Object[] checkIdParams = new Object[]{
+            userId,followUserId
+        };
+        return this.jdbcTemplate.queryForObject(checkIdQuery,int.class,checkIdParams);
+    }
 }

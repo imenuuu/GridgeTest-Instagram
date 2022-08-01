@@ -50,6 +50,7 @@ public class UserService {
             throw new BaseException(POST_USERS_EXISTS_ID);
         }
 
+
         String pwd;
         try{
             //암호화
@@ -258,7 +259,19 @@ public class UserService {
         }
     }
 
-    public void logIn(Long userId) {
-        userDao.logIn(userId);
+    public void logIn(Long userId) throws BaseException {
+        try{
+            userDao.logIn(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void updateLogInDate(Long userId) throws BaseException {
+        try{
+            userDao.updateLogInDate(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

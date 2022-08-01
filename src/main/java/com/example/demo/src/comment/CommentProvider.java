@@ -16,18 +16,28 @@ public class CommentProvider {
     public CommentProvider(CommentDao commentDao) {
         this.commentDao = commentDao;
     }
-    public List<GetCommentInfo> getComment(Long userId, Long boardId, int paging) {
-        List<GetCommentInfo> getComment= commentDao.getComment(userId, boardId,paging);
-        return getComment;
-
+    public List<GetCommentInfo> getComment(Long userId, Long boardId, int paging) throws BaseException {
+        try {
+            return commentDao.getComment(userId, boardId, paging);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public int checkComment(Long commentId) {
-        return commentDao.checkComment(commentId);
+    public int checkComment(Long commentId) throws BaseException {
+        try{
+            return commentDao.checkComment(commentId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public int checkBoard(Long boardId) {
-        return commentDao.checkBoard(boardId);
+    public int checkBoard(Long boardId) throws BaseException {
+        try{
+            return commentDao.checkBoard(boardId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
     public int checkUser(Long userId) throws BaseException {
         try{
@@ -37,11 +47,41 @@ public class CommentProvider {
         }
     }
 
-    public int checkReComment(Long reCommentId) {
-        return commentDao.checkReComment(reCommentId);
+    public int checkReComment(Long reCommentId) throws BaseException {
+        try {
+            return commentDao.checkReComment(reCommentId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetReCommentReq> getReComment(Long userId, Long commentId, int paging) {
-        return commentDao.getReComment(userId,commentId,paging);
+    public List<GetReCommentReq> getReComment(Long userId, Long commentId, int paging) throws BaseException {
+        try {
+            return commentDao.getReComment(userId, commentId, paging);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkReCommentLike(Long userId, Long reCommentId) throws BaseException {
+        try{
+            return commentDao.checkReCommentLike(userId,reCommentId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+        }
+
+    public int checkCommentLike(Long userId, Long commentId) throws BaseException {
+        try {
+            return commentDao.checkCommentLike(userId, commentId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+        }
+
+    public Long checkBoardUserId(Long boardId) {
+        return commentDao.checkBoardUserId(boardId);
+
     }
 }

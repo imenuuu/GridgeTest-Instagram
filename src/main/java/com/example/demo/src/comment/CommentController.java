@@ -2,10 +2,8 @@ package com.example.demo.src.comment;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.comment.model.GetCommentInfo;
-import com.example.demo.src.comment.model.GetReCommentReq;
-import com.example.demo.src.comment.model.PostCommentReq;
-import com.example.demo.src.comment.model.PostReCommentReq;
+import com.example.demo.src.board.model.PostBoardReportReq;
+import com.example.demo.src.comment.model.*;
 import com.example.demo.src.follow.FollowProvider;
 import com.example.demo.src.follow.FollowService;
 import com.example.demo.utils.JwtService;
@@ -77,16 +75,16 @@ public class CommentController {
             if(postCommentReq.getUserId() != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkUser(postCommentReq.getUserId())==1){
+            if(commentProvider.checkUser(postCommentReq.getUserId())!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(postCommentReq.getComment()==null){
+            if(postCommentReq.getComment().length()<1){
                 return new BaseResponse<>(POST_COMMENT_EMPTY);
             }
             if(postCommentReq.getComment().length()>200){
                 return new BaseResponse<>(LONG_COMMENT_CHARACTER);
             }
-            if(commentProvider.checkBoard(postCommentReq.getBoardId())==1){
+            if(commentProvider.checkBoard(postCommentReq.getBoardId())!=1){
                 return new BaseResponse<>(NOT_EXIST_BOARD);
             }
             commentService.postComment(postCommentReq);
@@ -106,42 +104,29 @@ public class CommentController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkUser(userId)==1){
+            if(commentProvider.checkUser(userId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(commentProvider.checkComment(commentId)==1){
+            if(commentProvider.checkComment(commentId)!=1){
                 return new BaseResponse<>(NOT_EXIST_COMMENT);
+              }
+            String result="";
+            if(commentProvider.checkCommentLike(userId,commentId)==1){
+                commentService.deleteCommentLike(userId,commentId);
+                result="댓글 좋아요 취소 성공";
             }
-            commentService.postCommentLike(userId,commentId);
-            String result="댓글 좋아요 성공";
+            else {
+                commentService.postCommentLike(userId, commentId);
+                result="댓글 좋아요 성공";
+            }
+
             return new BaseResponse<>(result);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
 
-    @ResponseBody
-    @DeleteMapping("/like/{userId}/{commentId}")
-    public BaseResponse<String> deleteCommentLike(@PathVariable("userId")Long userId,@PathVariable("commentId")Long commentId){
-        try {
-            //jwt에서 idx 추출.
-            Long userIdByJwt = jwtService.getUserIdx();
-            if(userId != userIdByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            if(commentProvider.checkUser(userId)==1){
-                return new BaseResponse<>(NOT_EXIST_USER);
-            }
-            if(commentProvider.checkComment(commentId)==1){
-                return new BaseResponse<>(NOT_EXIST_COMMENT);
-            }
-            commentService.deleteCommentLike(userId,commentId);
-            String result="댓글 좋아요 성공";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
+
     @ResponseBody
     @PostMapping("/re")
     public BaseResponse<String> postReComment(@RequestBody PostReCommentReq postCommentReq){
@@ -151,16 +136,16 @@ public class CommentController {
             if(postCommentReq.getUserId() != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkUser(postCommentReq.getUserId())==1){
+            if(commentProvider.checkUser(postCommentReq.getUserId())!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(postCommentReq.getReComment()==null){
+            if(postCommentReq.getReComment().length()<1){
                 return new BaseResponse<>(POST_COMMENT_EMPTY);
             }
             if(postCommentReq.getReComment().length()>200){
                 return new BaseResponse<>(LONG_COMMENT_CHARACTER);
             }
-            if(commentProvider.checkComment(postCommentReq.getCommentId())==1){
+            if(commentProvider.checkComment(postCommentReq.getCommentId())!=1){
                 return new BaseResponse<>(NOT_EXIST_COMMENT);
             }
             commentService.postReComment(postCommentReq);
@@ -181,41 +166,45 @@ public class CommentController {
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkUser(userId)==1){
+            if(commentProvider.checkUser(userId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(commentProvider.checkReComment(reCommentId)==1){
-                return new BaseResponse<>(NOT_EXIST_COMMENT);
+            if(commentProvider.checkReComment(reCommentId)!=1){
+                return new BaseResponse<>(NOT_EXIST_RECOMMENT);
             }
-            commentService.postReCommentLike(userId,reCommentId);
-            String result="댓글 좋아요 성공";
+            String result="";
+            if(commentProvider.checkReCommentLike(userId,reCommentId)==1){
+                commentService.deleteReCommentLike(userId,reCommentId);
+                result="대댓글 좋아요 취소 성공";
+            }
+            else{
+                commentService.postReCommentLike(userId,reCommentId);
+                result="대댓글 좋아요 성공";
+            }
+
             return new BaseResponse<>(result);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
 
-    //대댓글 좋아요 취소
     @ResponseBody
-    @DeleteMapping("/re/like/{userId}/{reCommentId}")
-    public BaseResponse<String> deleteReCommentLike(@PathVariable("userId")Long userId,@PathVariable("reCommentId")Long reCommentId){
-        try {
-            //jwt에서 idx 추출.
-            Long userIdByJwt = jwtService.getUserIdx();
-            if(userId != userIdByJwt){
+    @PostMapping("/report")
+    public BaseResponse<String> postCommentReport(PostCommentReportReq postCommentReportReq){
+        try{
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (postCommentReportReq.getUserId() != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkUser(userId)==1){
-                return new BaseResponse<>(NOT_EXIST_USER);
+            if(commentProvider.checkBoardUserId(postCommentReportReq.getCommentId())==postCommentReportReq.getUserId()){
+                return new BaseResponse<>(CANT_REPORT_COMMENT);
             }
-            if(commentProvider.checkReComment(reCommentId)==1){
-                return new BaseResponse<>(NOT_EXIST_RECOMMENT);
-            }
-            commentService.deleteReCommentLike(userId,reCommentId);
-            String result="댓글 좋아요 성공";
+            commentService.postCommentReport(postCommentReportReq);
+            String result="댓글 신고 성공";
             return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
         }
     }
+
 }

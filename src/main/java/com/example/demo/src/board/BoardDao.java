@@ -1,9 +1,6 @@
 package com.example.demo.src.board;
 
-import com.example.demo.src.board.model.GetBoardImgRes;
-import com.example.demo.src.board.model.GetBoardRes;
-import com.example.demo.src.board.model.PatchBoardReq;
-import com.example.demo.src.board.model.PostBoardReq;
+import com.example.demo.src.board.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -75,7 +72,7 @@ public class BoardDao {
                 "from User U\n" +
                 "         join Board B on B.userId = U.id\n" +
                 "         join Following F on F.followUserId = U.id\n" +
-                "where F.userId = ?\n" +
+                "where F.userId = ? and B.status='TRUE'\n" +
                 "order by B.createdDate desc limit ?,?;";
         String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
                 "from BoardImg BI\n" +
@@ -109,5 +106,16 @@ public class BoardDao {
                 patchBoardReq.getDescription(),patchBoardReq.getBoardId()
         };
         this.jdbcTemplate.update(patchBoardQuery,patchBoardParams);
+    }
+
+    public void postBoardReport(PostBoardReportReq postBoardReportReq) {
+        String postBoardReport="insert into BoardReport(userId,boardId,reportId) values(?,?,?)";
+        Object[] postBoardReportParams = new Object[]{postBoardReportReq.getUserId(),postBoardReportReq.getBoardId(),postBoardReportReq.getReportId()};
+        this.jdbcTemplate.update(postBoardReport,postBoardReportParams);
+    }
+
+    public Long checkBoardUserId(Long boardId) {
+        String getUserIdQuery="select userId from Board where id=?";
+        return this.jdbcTemplate.queryForObject(getUserIdQuery,Long.class,boardId);
     }
 }

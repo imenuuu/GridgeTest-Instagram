@@ -72,7 +72,7 @@ public class ChatController {
 
     // 디엠 채팅방 목록 확인
     @ResponseBody
-    @GetMapping("/room/{userId}")
+    @GetMapping("/{userId}")
     public BaseResponse<List<GetChatIdRes>> searchMyChatRoomList(@PathVariable("userId") Long userId){
         List<GetChatIdRes> getChatRoomRes=chatService.getMyChatRoomList(userId);
         return new BaseResponse<>(getChatRoomRes);

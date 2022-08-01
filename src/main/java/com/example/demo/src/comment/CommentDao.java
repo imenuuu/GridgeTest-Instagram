@@ -1,5 +1,6 @@
 package com.example.demo.src.comment;
 
+import com.example.demo.src.board.model.PostBoardReportReq;
 import com.example.demo.src.comment.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -104,7 +105,7 @@ public class CommentDao {
     }
 
     public int checkBoard(Long boardId) {
-        String checkIdQuery = "select exists(select id from CommentLike where id = ?)";
+        String checkIdQuery = "select exists(select id from Board where id = ?)";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 boardId);
@@ -188,5 +189,32 @@ public class CommentDao {
                         rs.getInt("likeCnt"),
                         rs.getInt("likeCheck")
                 ),getReComment);
+    }
+
+    public int checkReCommentLike(Long userId, Long reCommentId) {
+        String checkIdQuery = "select exists(select id from ReCommentLike where userId=? and reCommentId=?)";
+        Object[] checkIdParams=new Object[]{userId,reCommentId};
+        return this.jdbcTemplate.queryForObject(checkIdQuery,
+                int.class,
+                checkIdParams);
+    }
+
+    public int checkCommentLike(Long userId, Long commentId) {
+        String checkIdQuery = "select exists(select id from CommentLike where userId=? and commentId=?)";
+        Object[] checkIdParams=new Object[]{userId,commentId};
+        return this.jdbcTemplate.queryForObject(checkIdQuery,
+                int.class,
+                checkIdParams);
+    }
+
+    public Long checkBoardUserId(Long boardId) {
+        String getUserIdQuery="select userId from Comment where id=?";
+        return this.jdbcTemplate.queryForObject(getUserIdQuery,Long.class,boardId);
+    }
+
+    public void postCommentReport(PostCommentReportReq postCommentReportReq) {
+        String postBoardReport="insert into BoardReport(userId,boardId,reportId) values(?,?,?)";
+        Object[] postBoardReportParams = new Object[]{postCommentReportReq.getUserId(),postCommentReportReq.getCommentId(),postCommentReportReq.getReportId()};
+        this.jdbcTemplate.update(postBoardReport,postBoardReportParams);
     }
 }

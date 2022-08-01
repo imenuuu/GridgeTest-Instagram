@@ -1,6 +1,8 @@
 package com.example.demo.src.comment;
 
+import com.example.demo.src.board.model.PostBoardReportReq;
 import com.example.demo.src.comment.model.GetCommentInfo;
+import com.example.demo.src.comment.model.PostCommentReportReq;
 import com.example.demo.src.comment.model.PostCommentReq;
 import com.example.demo.src.comment.model.PostReCommentReq;
 import com.example.demo.src.follow.FollowDao;
@@ -38,5 +40,9 @@ public class CommentService {
 
     public void deleteReCommentLike(Long userId, Long reCommentId) {
         commentDao.deleteReCommentLike(userId,reCommentId);
+    }
+
+    public void postCommentReport(PostCommentReportReq postCommentReportReq) {
+        commentDao.postCommentReport(postCommentReportReq);
     }
 }

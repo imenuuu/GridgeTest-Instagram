@@ -93,6 +93,20 @@ public class UserDao {
                 );
 
     }
+    public User getPhoneNumberPwd(PostLoginReq postLoginReq) {
+        String getPwdQuery = "select id,userId,name,password from User where phoneNumber = ?";
+        String getPwdParams = postLoginReq.getId();
+
+        return this.jdbcTemplate.queryForObject(getPwdQuery,
+                (rs,rowNum)-> new User(
+                        rs.getLong("id"),
+                        rs.getString("userId"),
+                        rs.getString("name"),
+                        rs.getString("password")
+                ),
+                getPwdParams
+        );
+    }
 
 
     public List<GetUserRes> getUsers() {
@@ -233,7 +247,7 @@ public class UserDao {
     }
 
     public void modifyProfile(Long userId, PatchProfileReq patchProfileReq) {
-        String modifyProfileImgQuery="update User set name=?, userId=? , webSite=?, webSite=? , introduce=? where id = ? ";
+        String modifyProfileImgQuery="update User set name=?, userId=? , webSite=? , introduce=? where id = ? ";
         Object[] modifyProfileImgParam=new Object[]{patchProfileReq.getName(),patchProfileReq.getUserId(),patchProfileReq.getWebsite(),patchProfileReq.getIntroduce(),userId};
         this.jdbcTemplate.update(modifyProfileImgQuery,modifyProfileImgParam);
     }
@@ -302,6 +316,18 @@ public class UserDao {
     public void logIn(Long userId) {
         String logInQuery = "update User set logInDate=now() where id=?\n";
         this.jdbcTemplate.update(logInQuery,userId);
+    }
+
+
+    public int checkPhoneNumber(String phoneNumber) {
+        String checkQuery = "select exists(select id from User where phoneNumber=?)";
+        return this.jdbcTemplate.queryForObject(checkQuery,
+                int.class, phoneNumber);
+    }
+
+    public void updateLogInDate(Long userId) {
+        String updateLogInDateQuery = "update User set logInDate=now() where id=?";
+        this.jdbcTemplate.update(updateLogInDateQuery,userId);
     }
 }
 

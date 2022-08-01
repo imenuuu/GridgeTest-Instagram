@@ -18,7 +18,7 @@ import java.util.*;
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
 
 interface ChatServiceIF {
-    public List<GetChatRoomRes> getAllDataList();
+    public List<GetChatRoomRes> getAllDataList() throws BaseException;
     public List<GetChatRoomRes> getMyChatRoomList(String userId);
     public Long getChatMaxId();
     public void setChatData(Long chatId);
@@ -107,8 +107,12 @@ public class ChatService implements ChatServiceIF{
     // * Method << 채팅방 목록 확인 >>
     // ==================================================================
     @Override
-    public List<GetChatRoomRes> getAllDataList() {
-        return chatDao.getAllDataList();
+    public List<GetChatRoomRes> getAllDataList() throws BaseException {
+        try {
+            return chatDao.getAllDataList();
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
     @Override

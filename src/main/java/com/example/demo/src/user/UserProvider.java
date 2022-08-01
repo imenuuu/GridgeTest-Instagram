@@ -95,6 +95,25 @@ public class UserProvider {
 
     }
 
+    public PostLoginRes phoneLogin(PostLoginReq postLoginReq) throws BaseException {
+        User user = userDao.getPhoneNumberPwd(postLoginReq);
+        String encryptPwd;
+        try {
+            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword());
+        } catch (Exception ignored) {
+            throw new BaseException(PASSWORD_DECRYPTION_ERROR);
+        }
+
+        if(user.getPassword().equals(encryptPwd)){
+            Long userId = user.getId();
+            String jwt = jwtService.createJwt(userId);
+            return new PostLoginRes(userId,jwt);
+        }
+        else{
+            throw new BaseException(FAILED_TO_LOGIN);
+        }
+    }
+
     public List<GetMyProfileRes> getMyProfile(Long userId) {
         List<GetMyProfileRes> getMyProfileRes=userDao.getMyProfile(userId);
         return getMyProfileRes;
@@ -170,6 +189,15 @@ public class UserProvider {
         try{
             return userDao.checkFollow(userId, profileUserId);
         } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    public int checkPhoneNumber(String phoneNumber) throws BaseException {
+        try {
+            return userDao.checkPhoneNumber(phoneNumber);
+        } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }

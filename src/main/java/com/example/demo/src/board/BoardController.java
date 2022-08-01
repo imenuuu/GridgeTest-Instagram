@@ -92,4 +92,23 @@ public class BoardController {
         }
     }
 
+    @ResponseBody
+    @PostMapping("/report")
+    public BaseResponse<String> postBoardReport(PostBoardReportReq postBoardReportReq){
+        try{
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (postBoardReportReq.getUserId() != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(boardProvider.checkBoardUserId(postBoardReportReq.getBoardId())==postBoardReportReq.getUserId()){
+                return new BaseResponse<>(CANT_REPORT_BOARD);
+            }
+            boardService.postBoardReport(postBoardReportReq);
+            String result="게시글 신고 성공";
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
 }

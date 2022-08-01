@@ -18,8 +18,7 @@ import java.util.List;
 
 
 import static com.example.demo.config.BaseResponseStatus.*;
-import static com.example.demo.utils.ValidationRegex.isRegexId;
-import static com.example.demo.utils.ValidationRegex.isRegexPhoneNumber;
+import static com.example.demo.utils.ValidationRegex.*;
 
 @RestController
 @RequestMapping("/users")
@@ -96,9 +95,9 @@ public class UserController {
     @ResponseBody
     @PostMapping("")
     @ApiOperation(value="회원가입",notes="회원가입 API")
-    public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) {
+    public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) throws BaseException {
         // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
-        if(postUserReq.getUserId() == null){
+        if(postUserReq.getUserId().length() <1){
             return new BaseResponse<>(POST_USERS_EMPTY_ID);
         }
         if(postUserReq.getUserId().length()>=20){
@@ -110,6 +109,9 @@ public class UserController {
         }
         if(!isRegexPhoneNumber(postUserReq.getPhoneNumber())){
             return new BaseResponse<>(POST_USERS_INVALID_PHONE);
+        }
+        if(userProvider.checkPhoneNumber(postUserReq.getPhoneNumber())==1){
+            throw new BaseException(POST_USERS_PHONE_NUMBER);
         }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
@@ -130,7 +132,14 @@ public class UserController {
         try{
             // TODO: 로그인 값들에 대한 형식적인 validatin 처리해주셔야합니다!
             // TODO: 유저의 status ex) 비활성화된 유저, 탈퇴한 유저 등을 관리해주고 있다면 해당 부분에 대한 validation 처리도 해주셔야합니다.
-            PostLoginRes postLoginRes = userProvider.logIn(postLoginReq);
+            PostLoginRes postLoginRes=null;
+            if(postLoginReq.getType()=="phone"){
+                 postLoginRes=userProvider.phoneLogin(postLoginReq);
+            }
+            else {
+                postLoginRes = userProvider.logIn(postLoginReq);
+            }
+            userService.updateLogInDate(postLoginRes.getUserId());
             userService.logIn(postLoginRes.getUserId());
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException exception){
@@ -238,6 +247,7 @@ public class UserController {
     public BaseResponse<String> getKaKaoAccessToken(@RequestParam String code){
         List<GetKakaoTokenRes> getKaKaoAccessToken = null;
         try {
+
             String accessToken = userService.getKaKaoAccessToken(code);
             return  new BaseResponse<>(accessToken);
         } catch (BaseException e) {
@@ -268,6 +278,7 @@ public class UserController {
             if (userProvider.checkKakaoUser(kakaoInfo.getKakaoEmail()) == 0) {
                 return new BaseResponse<>(NOT_EXIST_KAKAO_USER);
             }
+
             //만약 유저 정보가 카카오 테이블에 있으면 로그인 후 jwt access_Token 발급
             else if (userProvider.checkKakaoUser(kakaoInfo.getKakaoEmail()) == 1) {
                 postLoginRes = userProvider.logInKakao(kakaoInfo.getKakaoEmail());
@@ -284,7 +295,7 @@ public class UserController {
     @ApiOperation(value="카카오 유저 회원가입",notes="카카오 유저 회원가입 API")
     public BaseResponse<PostUserRes> createKakaoUser(@RequestBody PostKakaoUserReq postKakaoUserReq) {
         // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
-        if(postKakaoUserReq.getUserId() == null){
+        if(postKakaoUserReq.getUserId().length() <1){
             return new BaseResponse<>(POST_USERS_EMPTY_ID);
         }
         if(postKakaoUserReq.getUserId().length()>=20){
@@ -353,6 +364,12 @@ public class UserController {
             }
             if(userProvider.checkId(patchProfileReq.getUserId())==1){
                 return new BaseResponse<>(POST_USERS_EXISTS_ID);
+            }
+            if(isRegexIdString(patchProfileReq.getUserId())){
+                return new BaseResponse<>(POST_USERS_INVALID_STRING);
+            }
+            if (!isRegexId(patchProfileReq.getUserId())) {
+                return new BaseResponse<>(POST_USERS_INVALID_ID);
             }
             userService.modifyProfile(userId, patchProfileReq);
             String result="수정 성공";
