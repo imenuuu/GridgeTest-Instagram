@@ -189,6 +189,33 @@ public class CommentController {
     }
 
     @ResponseBody
+    @PatchMapping("/re/{userId}/{reCommentId}")
+    public BaseResponse<String> deleteReComment(@PathVariable("userId") Long userId,@PathVariable("reCommentId")Long reCommentId){
+        try {
+            //jwt에서 idx 추출.
+            Long userIdByJwt = jwtService.getUserIdx();
+            if(userId != userIdByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(commentProvider.checkUser(userId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
+            if(commentProvider.checkReCommentUser(reCommentId)!=userId){
+                return new BaseResponse<>(NOT_DELETE_INVALID_USER);
+            }
+            if(commentProvider.checkReComment(reCommentId)!=1){
+                return new BaseResponse<>(NOT_EXIST_RECOMMENT);
+            }
+            String result="대댓글 삭제 처리 성공";
+            commentService.deleteReComment(userId,reCommentId);
+            commentService.deleteReCommentLike(userId,reCommentId);
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
     @PostMapping("/report")
     public BaseResponse<String> postCommentReport(PostCommentReportReq postCommentReportReq){
         try{

@@ -72,6 +72,21 @@ public class BoardController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+    @ResponseBody
+    @GetMapping("/profile/{userId}/{profileUserId}")
+    public BaseResponse<List<GetBoardRes>> getProfileBoard(@PathVariable("userId") Long userId,@PathVariable("profileUserId") Long profileUserId,@RequestParam(value = "paging",defaultValue = "1") int paging) {
+        try {
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (userId != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            List<GetBoardRes> getBoardRes = boardProvider.getProfileBoard(userId, profileUserId, paging);
+            return new BaseResponse<>(getBoardRes);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
 
     @ResponseBody
     @PatchMapping("")

@@ -1,7 +1,6 @@
 package com.example.demo.src.board;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.board.model.GetBoardImgRes;
 import com.example.demo.src.board.model.GetBoardRes;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +26,9 @@ public class BoardProvider {
 
     public Long checkBoardUserId(Long boardId) {
         return boardDao.checkBoardUserId(boardId);
+    }
+
+    public List<GetBoardRes> getProfileBoard(Long userId, Long profileUserId,int paging) {
+        return boardDao.getProfileBoard(userId, profileUserId, paging);
     }
 }

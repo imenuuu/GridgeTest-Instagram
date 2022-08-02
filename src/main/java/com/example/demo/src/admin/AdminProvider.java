@@ -1,8 +1,6 @@
 package com.example.demo.src.admin;
 
-import com.example.demo.src.admin.model.GetUserReq;
-import com.example.demo.src.admin.model.GetUserRes;
-import com.example.demo.src.board.BoardDao;
+import com.example.demo.src.admin.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,5 +14,18 @@ public class AdminProvider {
     }
     public List<GetUserRes> getUsers(GetUserReq getUserReq) {
         return adminDao.getUsers(getUserReq);
+    }
+
+    public List<GetUserInfoRes> getUserInfo(Long userId) {
+        List<GetUserInfoRes> getUserInfoRes=adminDao.getUserInfo(userId);
+        return getUserInfoRes;
+    }
+
+    public List<GetBoardRes> getBoards(GetBoardReq getBoardReq) {
+        return adminDao.getBoards(getBoardReq);
+    }
+
+    public List<GetBoardInfoRes> getBoardInfo(Long boardId) {
+        return adminDao.getBoardInfo(boardId);
     }
 }

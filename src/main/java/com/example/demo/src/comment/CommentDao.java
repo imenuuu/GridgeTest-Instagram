@@ -37,7 +37,7 @@ public class CommentDao {
                 "                       then concat(TIMESTAMPDIFF(hour, B.createdDate, now()), '시간 전')\n" +
                 "                   end as 'boardTime'\n" +
                 "from User U\n" +
-                "join Board B on B.userId = U.id\n" +
+                "join Board B on B.userId = U.id and B.status='TRUE'\n" +
                 "where B.id=?";
         String getCommentQuery="select U.id                                                                'userId',\n" +
                 "       U.profileImg                                                        'profileImgUrl',\n" +
@@ -57,11 +57,11 @@ public class CommentDao {
                 "                       then concat(TIMESTAMPDIFF(hour, C.createdDate, now()), '시간 전')\n" +
                 "                   end as 'commentTime',\n" +
                 "       (select count(CL.id) from CommentLike CL where CL.commentId = C.id) 'likeCnt',\n" +
-                "       (select count(RC.id) from ReComment RC where RC.commentId = C.id) 'reCommentCnt'," +
+                "       (select count(RC.id) from ReComment RC where RC.commentId = C.id and RC.status='TRUE') 'reCommentCnt'," +
                 "(select exists(select id from CommentLike CL where CL.commentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join Comment C on C.userId = U.id\n" +
-                "where C.boardId = ? order by C.createdDate desc limit ?,?;";
+                "where C.boardId = ? and C.status='TRUE' order by C.createdDate desc limit ?,?;";
         Object[] getCommentParams = new Object[]{userId,boardId,(paging-1)*10,paging*10};
         return this.jdbcTemplate.query(getBoardInfoQuery,
                 (rs,rowNum)->new GetCommentInfo(
@@ -173,7 +173,7 @@ public class CommentDao {
                 "       (select exists(select id from ReCommentLike CL where CL.reCommentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join ReComment C on C.userId = U.id\n" +
-                "where C.commentId = ? order by C.createdDate desc limit ?,?;\n";
+                "where C.commentId = ? and C.status ='TRUE' order by C.createdDate desc limit ?,?;\n";
         Object[] getReComment = new Object[]{
                 userId,commentId,(paging-1)*10,paging*10
         };
@@ -216,5 +216,20 @@ public class CommentDao {
         String postBoardReport="insert into BoardReport(userId,boardId,reportId) values(?,?,?)";
         Object[] postBoardReportParams = new Object[]{postCommentReportReq.getUserId(),postCommentReportReq.getCommentId(),postCommentReportReq.getReportId()};
         this.jdbcTemplate.update(postBoardReport,postBoardReportParams);
+    }
+
+    public void deleteReComment(Long userId, Long reCommentId) {
+        String deleteReCommentQuery="update ReComment set status='FALSE' where id=?";
+        this.jdbcTemplate.update(deleteReCommentQuery,reCommentId);
+    }
+
+    public void deleteComment(Long userId, Long reCommentId) {
+        String deleteReCommentQuery="update ReComment set status='FALSE' where id=?";
+        this.jdbcTemplate.update(deleteReCommentQuery,reCommentId);
+    }
+
+    public Long checkReCommentUser(Long reCommentId) {
+        String checkReCommentUserQuery="select userId from ReComment where id=?";
+        return this.jdbcTemplate.queryForObject(checkReCommentUserQuery,Long.class,reCommentId);
     }
 }

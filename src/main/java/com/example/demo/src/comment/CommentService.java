@@ -45,4 +45,8 @@ public class CommentService {
     public void postCommentReport(PostCommentReportReq postCommentReportReq) {
         commentDao.postCommentReport(postCommentReportReq);
     }
+
+    public void deleteReComment(Long userId, Long reCommentId) {
+        commentDao.deleteReComment(userId,reCommentId);
+    }
 }

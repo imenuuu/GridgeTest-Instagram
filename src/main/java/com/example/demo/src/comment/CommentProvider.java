@@ -84,4 +84,8 @@ public class CommentProvider {
         return commentDao.checkBoardUserId(boardId);
 
     }
+
+    public Long checkReCommentUser(Long reCommentId) {
+        return commentDao.checkReCommentUser(reCommentId);
+    }
 }

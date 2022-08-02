@@ -72,7 +72,7 @@ public class BoardDao {
                 "from User U\n" +
                 "         join Board B on B.userId = U.id\n" +
                 "         join Following F on F.followUserId = U.id\n" +
-                "where F.userId = ? and B.status='TRUE'\n" +
+                "where F.userId = ? and B.status='TRUE' and B.suspensionStatus='FALSE' and  B.dropStatus='FALSE'\n" +
                 "order by B.createdDate desc limit ?,?;";
         String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
                 "from BoardImg BI\n" +
@@ -117,5 +117,62 @@ public class BoardDao {
     public Long checkBoardUserId(Long boardId) {
         String getUserIdQuery="select userId from Board where id=?";
         return this.jdbcTemplate.queryForObject(getUserIdQuery,Long.class,boardId);
+    }
+
+    public List<GetBoardRes> getProfileBoard(Long userId, Long profileUserId, int paging) {
+
+        String getMainboardQuery="select U.profileImg'profileImgUrl',\n" +
+                "       U.id as'userId',\n" +
+                "       U.userid as 'userLoginId',\n" +
+                "       B.id                                                            'boardId',\n" +
+                "       B.description,\n" +
+                "       (select exists(select BL.id from BoardLike BL where BL.boardId=B.id and BL.userId=?))'likeCheck',\n" +
+                "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id) 'likeCnt',\n" +
+                "       ((select count(C.id) from Comment C where C.boardId=B.id)+\n" +
+                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id))'commentCnt',\n" +
+                "       case\n" +
+                "           when YEAR(B.createdDate) < YEAR(now())\n" +
+                "               then concat(YEAR(B.createdDate), '년 ', MONTH(B.createdDate), '월 ', DAY(B.createdDate), '일')\n" +
+                "           when YEAR(B.createdDate) = YEAR(now()) then\n" +
+                "               case\n" +
+                "                   when (TIMESTAMPDIFF(DAY, B.createdDate, now())) > 7\n" +
+                "                       then concat(month(B.createdDate), '월 ', DAY(B.createdDate), '일')\n" +
+                "                   when TIMESTAMPDIFF(minute, B.createdDate, now()) < 1\n" +
+                "                       then concat(TIMESTAMPDIFF(second, B.createdDate, now()),'초 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, B.createdDate, now()) > 24\n" +
+                "                       then concat(TIMESTAMPDIFF(DAY, B.createdDate, now()), '일 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, B.createdDate, now()) < 1\n" +
+                "                       then concat(TIMESTAMPDIFF(minute, B.createdDate, now()), '분 전')\n" +
+                "                   when TIMESTAMPDIFF(hour, B.createdDate, now()) < 24\n" +
+                "                       then concat(TIMESTAMPDIFF(hour, B.createdDate, now()), '시간 전')\n" +
+                "                   end end as                                          boardTime\n" +
+                "from User U\n" +
+                "         join Board B on B.userId = U.id\n" +
+                "where B.userId=? and B.status='TRUE' and B.suspensionStatus='FALSE' and  B.dropStatus='FALSE'\n" +
+                "order by B.createdDate desc limit ?,?;";
+        String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
+                "from BoardImg BI\n" +
+                "         join Board B on B.id = BI.boardId\n" +
+                "where BI.boardId = ?";
+        Object[] getBoardListParams = new Object[]{
+                userId,profileUserId,(paging-1)*10,paging*10
+        };
+        return this.jdbcTemplate.query(getMainboardQuery,
+                (rs,rowNum) ->new GetBoardRes(
+                        rs.getLong("userId"),
+                        rs.getString("profileImgUrl"),
+                        rs.getString("userLoginId"),
+                        rs.getLong("boardId"),
+                        rs.getString("description"),
+                        rs.getInt("likeCheck"),
+                        rs.getInt("likeCnt"),
+                        rs.getInt("commentCnt"),
+                        rs.getString("boardTime"),
+                        boardImgList=this.jdbcTemplate.query(getBoardImgQuery,
+                                (rk,rownum)->new GetBoardImgRes(
+                                        rk.getLong("imgId"),
+                                        rk.getString("imgUrl")
+                                ),rs.getLong("boardId"))
+                ),getBoardListParams);
     }
 }

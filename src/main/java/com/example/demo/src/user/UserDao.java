@@ -266,7 +266,7 @@ public class UserDao {
                     "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt',\n" +
                     "       (select exists(select F.followUserId from Following F where F.userId=? and F.followUserId=U.id ))'followCheck'" +
                     "from User U\n" +
-                    "left join Board B on B.userId=U.id\n" +
+                    "left join Board B on B.userId=U.id  and B.status='TRUE' and B.suspensionStatus='FALSE' \n" +
                     "where U.id = ?";
             return this.jdbcTemplate.query(getMyProfileQuery,
                     (rs,rowNum) ->new GetClosedProfileRes(

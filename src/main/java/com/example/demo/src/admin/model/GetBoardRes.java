@@ -4,14 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.List;
+
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetUserRes {
-    private Long userId;
+public class GetBoardRes {
+    private Long boardId;
     private String userLoginId;
-    private String phoneNumber;
-    private String logInDate;
+    private String description;
+    private String boardDate;
 }

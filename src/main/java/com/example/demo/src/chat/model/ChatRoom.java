@@ -42,8 +42,6 @@ public class ChatRoom {
         String type= chatMessage.getType();
         Long chatId = chatMessage.getChatId();
         Long userId = chatMessage.getUserId();
-        String userLogInId = chatMessage.getUserLogInId();
-        String user_name = chatMessage.getUser_name();
         String message= chatMessage.getMessage();
 
         // 채팅방 입장
@@ -59,6 +57,9 @@ public class ChatRoom {
                 chatService.addChatMember(chatId,userId);  // chat,chatuser table에 기록
             else
                 return ; // 입장했다는 메시지를 기록하지 않고 보내지도 않음
+        }
+        else if(type.equals("LIKE")){
+
         }
         
         // 채팅방 퇴장
