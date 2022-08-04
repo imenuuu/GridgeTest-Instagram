@@ -14,6 +14,7 @@ public class ChatController {
 
     List<GetChatIdRes> chatId;
     private final ChatService chatService;
+    private final ChatProvider chatProvider;
 
     /*
     채팅방 입장, 대화, 퇴장은 Socket 통신
@@ -41,7 +42,7 @@ public class ChatController {
         }
     */
 
-    // 채팅방 생성
+
     @ResponseBody
     @PostMapping("/create")
     public BaseResponse<String> createChat(@RequestBody PostChatReq postChatReq)
@@ -83,7 +84,7 @@ public class ChatController {
 
     //디엠 메세지 불러오기
     @ResponseBody
-    @GetMapping("/chatMessage/{userId}/{chatId}")
+    @GetMapping("/message/{userId}/{chatId}")
     public BaseResponse<List<GetChatRoomInfo>> getChatMessageRes(@PathVariable("userId") Long userId,@PathVariable("chatId") Long chatId) {
         List<GetChatRoomInfo> getChatMessageRes = chatService.getAllChatMessage(userId,chatId);
         return new BaseResponse<>(getChatMessageRes);

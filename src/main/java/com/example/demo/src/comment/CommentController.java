@@ -206,6 +206,7 @@ public class CommentController {
             if(commentProvider.checkReComment(reCommentId)!=1){
                 return new BaseResponse<>(NOT_EXIST_RECOMMENT);
             }
+            commentService.deleteReCommentLikeById(reCommentId);
             String result="대댓글 삭제 처리 성공";
             commentService.deleteReComment(userId,reCommentId);
             commentService.deleteReCommentLike(userId,reCommentId);
@@ -223,11 +224,36 @@ public class CommentController {
             if (postCommentReportReq.getUserId() != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(commentProvider.checkBoardUserId(postCommentReportReq.getCommentId())==postCommentReportReq.getUserId()){
+            if(commentProvider.checkComment(postCommentReportReq.getCommentId())!=1){
+                return new BaseResponse<>(NOT_EXIST_COMMENT);
+            }
+            if(commentProvider.checkCommentUserId(postCommentReportReq.getCommentId())==postCommentReportReq.getUserId()){
                 return new BaseResponse<>(CANT_REPORT_COMMENT);
             }
             commentService.postCommentReport(postCommentReportReq);
             String result="댓글 신고 성공";
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @PostMapping("/re/report")
+    public BaseResponse<String> postReCommentReport(PostReCommentReportReq postReCommentReportReq){
+        try{
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (postReCommentReportReq.getUserId() != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(commentProvider.checkReComment(postReCommentReportReq.getReCommentId())!=1){
+                return new BaseResponse<>(NOT_EXIST_RECOMMENT);
+            }
+            if(commentProvider.checkReCommentUserId(postReCommentReportReq.getReCommentId())==postReCommentReportReq.getUserId()){
+                return new BaseResponse<>(CANT_REPORT_COMMENT);
+            }
+            commentService.postReCommentReport(postReCommentReportReq);
+            String result="대댓글 신고 성공";
             return new BaseResponse<>(result);
         }catch (BaseException e){
             return new BaseResponse<>(e.getStatus());

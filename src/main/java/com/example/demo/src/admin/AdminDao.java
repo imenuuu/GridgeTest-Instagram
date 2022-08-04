@@ -54,7 +54,6 @@ public class AdminDao {
                         rs.getDate("logInDate"),
                         rs.getString( "userPublic"),
                         rs.getString( "agreeInfo"),
-                        rs.getString( "dropStatus"),
                         rs.getString( "suspensionStatus")
                 ),userId);
     }
@@ -86,7 +85,7 @@ public class AdminDao {
     }
 
     public List<GetBoardInfoRes> getBoardInfo(Long boardId) {
-        String getBoardInfoQuery="select id'boardId',userId,description,createdDate,updatedDate,suspensionStatus,status,dropStatus from Board where id=?";
+        String getBoardInfoQuery="select id'boardId',userId,description,createdDate,updatedDate,suspensionStatus,status from Board where id=?";
         String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
                 "from BoardImg BI\n" +
                 "         join Board B on B.id = BI.boardId\n" +
@@ -100,12 +99,68 @@ public class AdminDao {
                         rs.getDate("updatedDate"),
                         rs.getString("suspensionStatus"),
                         rs.getString("status"),
-                        rs.getString("dropStatus"),
                         boardImgList=this.jdbcTemplate.query(getBoardImgQuery,
                                 (rk,rownum)->new BoardImg(
                                         rk.getLong("imgId"),
                                         rk.getString("imgUrl")
                                 ),boardId)
                 )),boardId);
+    }
+
+    public List<GetBoardReportRes> getBoardReport(int paging) {
+        String getBoardReportQuery="select BR.id'reportId' ,U.name'userName',B.id'boardId',B.description,RL.descrption'cause',BR.createdDate from BoardReport BR\n" +
+                "join Board B on B.id=BR.boardId\n" +
+                "join User U on U.id=B.userId\n" +
+                "join ReportList RL on RL.id=BR.reportId limit ?,?";
+        Object[] pagingParams=new Object[]{
+                (paging-1)*10,(paging)*10
+        };
+        return this.jdbcTemplate.query(getBoardReportQuery,
+                (rs,rowNum)-> new GetBoardReportRes(
+                        rs.getLong("reportId"),
+                        rs.getString("userName"),
+                        rs.getLong("boardId"),
+                        rs.getString("description"),
+                        rs.getString("cause"),
+                        rs.getDate("createdDate")
+                ),pagingParams);
+    }
+
+    public List<GetReCommentReportRes> getReCommentReport(int paging) {
+        String getBoardReportQuery="select CR.id'reportId' ,U.name'userName',C.id'reCommentId',C.reComment,RL.descrption'cause',CR.createdDate from ReCommentReport CR\n" +
+                "join ReComment C on C.id=CR.reCommentId\n" +
+                "join User U on U.id=C.userId\n" +
+                "join ReportList RL on RL.id=CR.reportId limit ?,?";
+        Object[] pagingParams=new Object[]{
+                (paging-1)*10,(paging)*10
+        };
+        return this.jdbcTemplate.query(getBoardReportQuery,
+                (rs,rowNum)-> new GetReCommentReportRes(
+                        rs.getLong("reportId"),
+                        rs.getString("userName"),
+                        rs.getLong("reCommentId"),
+                        rs.getString("reComment"),
+                        rs.getString("cause"),
+                        rs.getDate("createdDate")
+                ),pagingParams);
+    }
+
+    public List<GetCommentReportRes> getCommentReport(int paging) {
+        String getBoardReportQuery="select CR.id'reportId' ,U.name'userName',C.id'commentId',C.comment,RL.descrption'cause',CR.createdDate from CommentReport CR\n" +
+                "join Comment C on C.id=CR.commentId\n" +
+                "join User U on U.id=C.userId\n" +
+                "join ReportList RL on RL.id=CR.reportId limit ?,?";
+        Object[] pagingParams=new Object[]{
+                (paging-1)*10,(paging)*10
+        };
+        return this.jdbcTemplate.query(getBoardReportQuery,
+                (rs,rowNum)-> new GetCommentReportRes(
+                        rs.getLong("reportId"),
+                        rs.getString("userName"),
+                        rs.getLong("commentId"),
+                        rs.getString("comment"),
+                        rs.getString("cause"),
+                        rs.getDate("createdDate")
+                ),pagingParams);
     }
 }

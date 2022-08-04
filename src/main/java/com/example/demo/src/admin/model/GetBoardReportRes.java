@@ -5,18 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetBoardInfoRes {
+public class GetBoardReportRes {
+    private Long reportId;
+    private String userName;
     private Long boardId;
-    private Long userId;
     private String description;
+    private String cause;
     private Date createdDate;
-    private Date updatedDate;
-    private String suspensionStatus;
-    private String status;
-    private List<BoardImg> boardImgList;
 }

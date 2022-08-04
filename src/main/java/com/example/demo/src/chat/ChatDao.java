@@ -56,7 +56,7 @@ public class ChatDao {
                 "       (select case\n" +
                 "                   when TIMESTAMPDIFF(WEEK, DM.createdDate, now()) > 1\n" +
                 "                       then concat(TIMESTAMPDIFF(WEEK, DM.createdDate, now()), '주 전')\n" +
-                "                   when TIMESTAMPDIFF(hour, DM.createdDate, now()) >= 24\n" +
+                "                   when TIMESTAMPDIFF(hour, DM.createdDate, now()) <= 24\n" +
                 "                       then '1일전'\n" +
                 "                   when TIMESTAMPDIFF(hour, DM.createdDate, now()) > 48\n" +
                 "                       then if(TIMESTAMPDIFF(DAY, DM.createdDate, now()) > 7, date_format(DM.createdDate, '%y-%m-%d'),\n" +

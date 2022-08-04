@@ -31,4 +31,22 @@ public class BoardProvider {
     public List<GetBoardRes> getProfileBoard(Long userId, Long profileUserId,int paging) {
         return boardDao.getProfileBoard(userId, profileUserId, paging);
     }
+
+    public int checkBoardLike(Long userId, Long boardId) throws BaseException {
+        try {
+            return boardDao.checkBoardLike(userId, boardId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+
+    }
+
+    public int checkBoard(Long boardId) throws BaseException {
+        try{
+            return boardDao.checkBoard(boardId);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

@@ -26,6 +26,5 @@ public class GetUserInfoRes {
     private Date logInDate;
     private String userPublic;
     private String agreeInfo;
-    private String dropStatus;
     private String suspensionStatus;
 }

@@ -80,12 +80,29 @@ public class CommentProvider {
         }
         }
 
-    public Long checkBoardUserId(Long boardId) {
-        return commentDao.checkBoardUserId(boardId);
+    public Long checkCommentUserId(Long boardId) throws BaseException {
+        try {
+            return commentDao.checkCommentUserId(boardId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
 
     }
 
-    public Long checkReCommentUser(Long reCommentId) {
-        return commentDao.checkReCommentUser(reCommentId);
+    public Long checkReCommentUser(Long reCommentId) throws BaseException {
+        try{
+            return commentDao.checkReCommentUser(reCommentId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+    }
+
+    }
+
+    public Long checkReCommentUserId(Long commentId) throws BaseException {
+        try {
+            return commentDao.checkReCommentUserId(commentId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

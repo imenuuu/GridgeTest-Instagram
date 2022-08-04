@@ -142,4 +142,26 @@ public class AdminController {
         return new BaseResponse<>(getBoardRes);
     }
 
+    @ResponseBody
+    @GetMapping("/report/boards")
+    public BaseResponse<List<GetBoardReportRes>> getBoardReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
+        List<GetBoardReportRes> getBoardReportRes = adminProvider.getBoardReport(paging);
+        return new BaseResponse<>(getBoardReportRes);
+    }
+
+    @ResponseBody
+    @GetMapping("/report/comments")
+    public BaseResponse<List<GetCommentReportRes>> getCommentReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
+        List<GetCommentReportRes> getCommentReportRes = adminProvider.getCommentReport(paging);
+        return new BaseResponse<>(getCommentReportRes);
+    }
+
+    @ResponseBody
+    @GetMapping("/report/reComments")
+    public BaseResponse<List<GetReCommentReportRes>> getReCommentReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
+        List<GetReCommentReportRes> getReCommentReportRes = adminProvider.getReCommentReport(paging);
+        return new BaseResponse<>(getReCommentReportRes);
+    }
+
+
 }

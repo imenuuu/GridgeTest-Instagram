@@ -59,6 +59,32 @@ public class BoardController {
     }
 
     @ResponseBody
+    @PostMapping("/like/{userId}/{boardId}")
+    public BaseResponse<String> postBoardLike(@PathVariable("userId") Long userId,@PathVariable("boardId") Long boardId){
+        try {
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (userId != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            String result="";
+            if(boardProvider.checkBoard(boardId)!=1){
+                return new BaseResponse<>(NOT_EXIST_BOARD);
+            }
+            if(boardProvider.checkBoardLike(userId,boardId)!=1){
+                boardService.postBoardLike(userId,boardId);
+                result="좋아요 성공";
+            }
+            else{
+                boardService.deleteBoardLike(userId,boardId);
+                result="좋아요 취소 성공";
+            }
+            return new BaseResponse<>(result);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
     @GetMapping("/{userId}")
     public BaseResponse<List<GetBoardRes>> getMainBoard(@PathVariable("userId") Long userId,@RequestParam(value = "paging",defaultValue = "1") int paging){
         try {
@@ -114,6 +140,9 @@ public class BoardController {
             Long userIdxByJwt = jwtService.getUserIdx();
             if (postBoardReportReq.getUserId() != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(boardProvider.checkBoard((postBoardReportReq.getBoardId()))!=1){
+                return new BaseResponse<>(NOT_EXIST_BOARD);
             }
             if(boardProvider.checkBoardUserId(postBoardReportReq.getBoardId())==postBoardReportReq.getUserId()){
                 return new BaseResponse<>(CANT_REPORT_BOARD);

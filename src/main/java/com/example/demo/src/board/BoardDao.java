@@ -72,7 +72,7 @@ public class BoardDao {
                 "from User U\n" +
                 "         join Board B on B.userId = U.id\n" +
                 "         join Following F on F.followUserId = U.id\n" +
-                "where F.userId = ? and B.status='TRUE' and B.suspensionStatus='FALSE' and  B.dropStatus='FALSE'\n" +
+                "where F.userId = ? and B.status='TRUE' and B.suspensionStatus='FALSE' \n" +
                 "order by B.createdDate desc limit ?,?;";
         String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
                 "from BoardImg BI\n" +
@@ -148,7 +148,7 @@ public class BoardDao {
                 "                   end end as                                          boardTime\n" +
                 "from User U\n" +
                 "         join Board B on B.userId = U.id\n" +
-                "where B.userId=? and B.status='TRUE' and B.suspensionStatus='FALSE' and  B.dropStatus='FALSE'\n" +
+                "where B.userId=? and B.status='TRUE' and B.suspensionStatus='FALSE' \n" +
                 "order by B.createdDate desc limit ?,?;";
         String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
                 "from BoardImg BI\n" +
@@ -174,5 +174,26 @@ public class BoardDao {
                                         rk.getString("imgUrl")
                                 ),rs.getLong("boardId"))
                 ),getBoardListParams);
+    }
+
+    public int checkBoardLike(Long userId, Long boardId) {
+        String checkQuery = "select exists(select id from BoardLike where userId=? and boardId=?)";
+        Object[] checkParams = new Object[]{userId,boardId};
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,checkParams);
+    }
+    public void postBoardLike(Long userId, Long boardId){
+        String postBoardLikeQuery="insert into BoardLike(userId,boardId) values(?,?)";
+        Object[] postBoardLikeParams = new Object[]{userId,boardId};
+        this.jdbcTemplate.update(postBoardLikeQuery,postBoardLikeParams);
+    }
+    public void deleteBoardLike(Long userId, Long boardId){
+        String deleteBoardLikeQuery="delete from BoardLike where userId=? and boardId=?";
+        Object[] deleteBoardLikeParams = new Object[]{userId,boardId};
+        this.jdbcTemplate.update(deleteBoardLikeQuery,deleteBoardLikeParams);
+    }
+
+    public int checkBoard(Long boardId) {
+        String checkQuery = "select exists(select id from Board where id=? and status='TRUE')";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,boardId);
     }
 }

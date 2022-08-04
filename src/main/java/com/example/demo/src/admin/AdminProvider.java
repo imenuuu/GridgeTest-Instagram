@@ -28,4 +28,16 @@ public class AdminProvider {
     public List<GetBoardInfoRes> getBoardInfo(Long boardId) {
         return adminDao.getBoardInfo(boardId);
     }
+
+    public List<GetBoardReportRes> getBoardReport(int paging) {
+        return adminDao.getBoardReport(paging);
+    }
+
+    public List<GetCommentReportRes> getCommentReport(int paging) {
+        return adminDao.getCommentReport(paging);
+    }
+
+    public List<GetReCommentReportRes> getReCommentReport(int paging) {
+        return adminDao.getReCommentReport(paging);
+    }
 }

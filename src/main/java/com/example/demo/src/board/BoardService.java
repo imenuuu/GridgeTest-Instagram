@@ -55,4 +55,21 @@ public class BoardService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void deleteBoardLike(Long userId, Long boardId) throws BaseException {
+        try {
+            boardDao.deleteBoardLike(userId, boardId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void postBoardLike(Long userId, Long boardId) throws BaseException {
+        try {
+            boardDao.postBoardLike(userId, boardId);
+        }
+        catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

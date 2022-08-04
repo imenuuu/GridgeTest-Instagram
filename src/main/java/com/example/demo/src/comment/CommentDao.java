@@ -207,7 +207,7 @@ public class CommentDao {
                 checkIdParams);
     }
 
-    public Long checkBoardUserId(Long boardId) {
+    public Long checkCommentUserId(Long boardId) {
         String getUserIdQuery="select userId from Comment where id=?";
         return this.jdbcTemplate.queryForObject(getUserIdQuery,Long.class,boardId);
     }
@@ -231,5 +231,21 @@ public class CommentDao {
     public Long checkReCommentUser(Long reCommentId) {
         String checkReCommentUserQuery="select userId from ReComment where id=?";
         return this.jdbcTemplate.queryForObject(checkReCommentUserQuery,Long.class,reCommentId);
+    }
+
+    public void deleteReCommentLikeById(Long reCommentId) {
+        String deleteReCommentLikeQuery="delete from ReCommentLike where reCommentId=?";
+        this.jdbcTemplate.update(deleteReCommentLikeQuery,reCommentId);
+    }
+
+    public Long checkReCommentUserId(Long commentId) {
+        String getUserIdQuery="select userId from ReComment where id=?";
+        return this.jdbcTemplate.queryForObject(getUserIdQuery,Long.class,commentId);
+    }
+
+    public void postReCommentReport(PostReCommentReportReq postReCommentReportReq) {
+        String postReCommentReport="insert into BoardReport(userId,boardId,reportId) values(?,?,?)";
+        Object[] postReCommentReportParams = new Object[]{postReCommentReportReq.getUserId(),postReCommentReportReq.getReCommentId(),postReCommentReportReq.getReportId()};
+        this.jdbcTemplate.update(postReCommentReport,postReCommentReportParams);
     }
 }
