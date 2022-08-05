@@ -72,4 +72,13 @@ public class BoardService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void deleteBoard(Long boardId) throws BaseException {
+        try {
+            boardDao.deleteBoard(boardId);
+        }
+        catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

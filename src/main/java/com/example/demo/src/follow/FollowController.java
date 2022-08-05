@@ -43,6 +43,7 @@ public class FollowController {
             if(followProvider.checkUser(followUserId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
+
             String result = "";
             if(followProvider.checkFollow(userId,followUserId)!=1){
                 if(followProvider.getUserPublic(followUserId).equals("TRUE")){
@@ -50,6 +51,9 @@ public class FollowController {
                     result="팔로우 성공";
                 }
                 else{
+                    if(followProvider.checkFollowRequest(userId,followUserId)==1){
+                        return new BaseResponse<>(EXIST_FOLLOW_REQUEST);
+                    }
                     followService.requestFollow(userId,followUserId);
                     result="팔로우 요청 성공";
                 }
@@ -85,7 +89,7 @@ public class FollowController {
 
             Long followUserId=followProvider.getRequestUserId(requestId);
             followService.deleteRequest(requestId);
-            followService.createFollow(followUserId,userId);
+            followService.createFollow(userId,followUserId);
             String result="팔로우 수락 완료";
 
             return new BaseResponse<>(result);
@@ -119,17 +123,15 @@ public class FollowController {
     }
 
     @ResponseBody
-    @DeleteMapping("/request/{userId}/{requestId}")
-    public BaseResponse<String> cancelFollowRequest(@PathVariable("userId") Long userId,@PathVariable("requestId") Long requestId){
+    @DeleteMapping("/request/{userId}/{followUserId}")
+    public BaseResponse<String> cancelFollowRequest(@PathVariable("userId") Long userId,@PathVariable("followUserId") Long followUserId){
         try {
             //jwt에서 idx 추출.
             Long userIdByJwt = jwtService.getUserIdx();
             if(userId != userIdByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(followProvider.checkRequest(requestId)!=1){
-                return new BaseResponse<>(NOT_EXIST_FOLLOW);
-            }
+            Long requestId=followProvider.getFollowRequestId(userId,followUserId);
             if(followProvider.getRequestUserId(requestId)!=userId){
                 return new BaseResponse<>(INVALID_USER_ACCESS);
             }

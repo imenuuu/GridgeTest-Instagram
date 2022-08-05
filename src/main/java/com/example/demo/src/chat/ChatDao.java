@@ -1,9 +1,6 @@
 package com.example.demo.src.chat;
 
-import com.example.demo.src.chat.model.GetChatIdRes;
-import com.example.demo.src.chat.model.GetChatMessageRes;
-import com.example.demo.src.chat.model.GetChatRoomInfo;
-import com.example.demo.src.chat.model.GetChatRoomRes;
+import com.example.demo.src.chat.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -122,7 +119,7 @@ public class ChatDao {
                 "       (select exists (select id from MessageLike where messageId = M.id))'likeCheck'\n" +
                 "from User U\n" +
                 "         join Message M on M.userId = U.id\n" +
-                "where M.dmRoomId = ?\n" +
+                "where M.dmRoomId = ? \n" +
                 "order by M.createdDate desc;";
         String getChatInfoQuery ="select dmRoomId 'chatId', U.id 'userId', U.profileImg 'profileImgUrl', U.name'userName', U.userId 'userLoginId'\n" +
                 "from ChatRoomJoin CRJ\n" +
@@ -169,5 +166,13 @@ public class ChatDao {
     public void addChatId(Long chatId) {
         String addChatIdQuery="insert into ChatRoom(id) values(?)";
         this.jdbcTemplate.update(addChatIdQuery,chatId);
+    }
+
+    public void postMessageLike(PostMessageLikeReq postMessageLikeReq) {
+        String postMessageLikeQuery="insert into MessageLike(dmMessageId,userId) values(?,?)";
+        Object[] params = new Object[]{
+                postMessageLikeReq.getMessageId(),postMessageLikeReq.getUserId()
+        };
+        this.jdbcTemplate.update(postMessageLikeQuery,params);
     }
 }

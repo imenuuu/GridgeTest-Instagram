@@ -49,9 +49,9 @@ public class AdminDao {
                         rs.getString( "phoneNumber"),
                         rs.getString( "userReact"),
                         rs.getString("userStatus"),
-                        rs.getDate("createdDate"),
-                        rs.getDate("updatedDate"),
-                        rs.getDate("logInDate"),
+                        rs.getTimestamp("createdDate"),
+                        rs.getTimestamp("updatedDate"),
+                        rs.getTimestamp("logInDate"),
                         rs.getString( "userPublic"),
                         rs.getString( "agreeInfo"),
                         rs.getString( "suspensionStatus")
@@ -95,8 +95,8 @@ public class AdminDao {
                         rs.getLong("boardId"),
                         rs.getLong("userId"),
                         rs.getString("description"),
-                        rs.getDate("createdDate"),
-                        rs.getDate("updatedDate"),
+                        rs.getTimestamp("createdDate"),
+                        rs.getTimestamp("updatedDate"),
                         rs.getString("suspensionStatus"),
                         rs.getString("status"),
                         boardImgList=this.jdbcTemplate.query(getBoardImgQuery,
@@ -122,7 +122,7 @@ public class AdminDao {
                         rs.getLong("boardId"),
                         rs.getString("description"),
                         rs.getString("cause"),
-                        rs.getDate("createdDate")
+                        rs.getTimestamp("createdDate")
                 ),pagingParams);
     }
 
@@ -141,7 +141,7 @@ public class AdminDao {
                         rs.getLong("reCommentId"),
                         rs.getString("reComment"),
                         rs.getString("cause"),
-                        rs.getDate("createdDate")
+                        rs.getTimestamp("createdDate")
                 ),pagingParams);
     }
 
@@ -160,7 +160,65 @@ public class AdminDao {
                         rs.getLong("commentId"),
                         rs.getString("comment"),
                         rs.getString("cause"),
-                        rs.getDate("createdDate")
+                        rs.getTimestamp("createdDate")
                 ),pagingParams);
+    }
+
+    public void deleteCommentReport(Long reportId) {
+        String deleteQuery = "delete from CommentReport where id=?";
+        this.jdbcTemplate.update(deleteQuery,reportId);
+    }
+
+    public void deleteBoardReport(Long reportId) {
+        String deleteQuery = "delete from BoardReport where id=?";
+        this.jdbcTemplate.update(deleteQuery,reportId);
+
+    }
+
+    public void deleteReCommentReport(Long reportId) {
+        String deleteQuery = "delete from ReCommentReport where id=?";
+        this.jdbcTemplate.update(deleteQuery,reportId);
+    }
+
+    public List<GetBoardReportInfoRes> getBoardReportInfo(Long boardId) {
+        String getBoardInfoQuery="select Board.id'boardId',Board.userId,description,Board.createdDate,updatedDate,suspensionStatus,status,RL.descrption'cause' from Board " +
+                "join BoardReport BR on BR.boardId=Board.id " +
+                "join ReportList RL on BR.reportId = RL.id " +
+                "where Board.id=?";
+        String getBoardImgQuery="select BI.id 'imgId', BI.boardImgurl 'imgUrl'\n" +
+                "from BoardImg BI\n" +
+                "         join Board B on B.id = BI.boardId\n" +
+                "where BI.boardId = ?";
+        return this.jdbcTemplate.query(getBoardInfoQuery,
+                ((rs, rowNum) -> new GetBoardReportInfoRes(
+                        rs.getLong("boardId"),
+                        rs.getLong("userId"),
+                        rs.getString("description"),
+                        rs.getTimestamp("createdDate"),
+                        rs.getTimestamp("updatedDate"),
+                        rs.getString("suspensionStatus"),
+                        rs.getString("status"),
+                        rs.getString("cause"),
+                        boardImgList=this.jdbcTemplate.query(getBoardImgQuery,
+                                (rk,rownum)->new BoardImg(
+                                        rk.getLong("imgId"),
+                                        rk.getString("imgUrl")
+                                ),boardId)
+                )),boardId);
+    }
+
+    public void deleteBoard(Long boardId) {
+        String deleteQuery = "update User set suspensionStatus='TRUE' where id=?";
+        this.jdbcTemplate.update(deleteQuery,boardId);
+    }
+
+    public void deleteComment(Long commentId) {
+        String deleteQuery = "update Comment set suspensionStatus='TRUE' where id=?";
+        this.jdbcTemplate.update(deleteQuery,commentId);
+    }
+
+    public void deleteReComment(Long reCommentId) {
+        String deleteQuery = "update ReComment set suspensionStatus='TRUE' where id=?";
+        this.jdbcTemplate.update(deleteQuery,reCommentId);
     }
 }

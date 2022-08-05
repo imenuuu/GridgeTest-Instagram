@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +82,8 @@ public class UserService {
         }
     }
     public String PhoneNumberCheck(String to) throws CoolsmsException {
-        String api_key = "NCSSDCQD8ZPSDL7H";
-        String api_secret = "3JNFD9A9JPB14TMPOUFOOXT6RVC43BFD";
+        String api_key = "NCSNMZXJWB2W7OSP";
+        String api_secret = "AQA4ROR9GMGDQGKN67CLPAWYKCKPY1SR";
         Message coolsms = new Message(api_key, api_secret);
 
         Random rand  = new Random();
@@ -98,8 +99,14 @@ public class UserService {
         params.put("type", "sms");
         params.put("text", "인증번호는 [" + numStr + "] 입니다.");
 
-        coolsms.send(params); // 메시지 전송
 
+        try {
+            JSONObject obj = (JSONObject) coolsms.send(params);
+            System.out.println(obj.toString());
+        } catch (CoolsmsException e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCode());
+        }
         return numStr;
     }
 
@@ -270,6 +277,17 @@ public class UserService {
     public void updateLogInDate(Long userId) throws BaseException {
         try{
             userDao.updateLogInDate(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+
+    public void updateAllStatus(Long userId) throws BaseException {
+        try{
+            userDao.updateAllStatus(userId);
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }

@@ -12,7 +12,7 @@ import java.util.List;
 public class GetUserProfileRes {
     private String userPublic;
     private Long userId;
-    private String userName;
+    private String userLoginId;
     private String profileImgUrl;
     private String name;
     private String introduce;

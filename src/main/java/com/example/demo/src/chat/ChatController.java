@@ -89,4 +89,12 @@ public class ChatController {
         List<GetChatRoomInfo> getChatMessageRes = chatService.getAllChatMessage(userId,chatId);
         return new BaseResponse<>(getChatMessageRes);
     }
+
+    @ResponseBody
+    @PostMapping("/message/like")
+    public BaseResponse<String> postMessageLike(PostMessageLikeReq postMessageLikeReq){
+        String result = "좋아요 성공";
+        chatService.postMessageLike(postMessageLikeReq);
+        return new BaseResponse<>(result);
+    }
 }

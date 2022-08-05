@@ -155,4 +155,27 @@ public class BoardController {
         }
     }
 
+    @ResponseBody
+    @PatchMapping("/drop/{userId}/{boardId}")
+    public BaseResponse<String> deleteBoard(@PathVariable("userId") Long userId, @PathVariable("boardId") Long boardId){
+        try{
+            Long userIdxByJwt = jwtService.getUserIdx();
+            if (userId != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(boardProvider.checkBoard(boardId)!=1){
+                return new BaseResponse<>(NOT_EXIST_BOARD);
+            }
+            if(boardProvider.checkBoardUserId(boardId)!=userId){
+                return new BaseResponse<>(NOT_DELETE_INVALID_USER);
+            }
+            boardService.deleteBoard(boardId);
+            String result="게시글 신고 성공";
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+
 }

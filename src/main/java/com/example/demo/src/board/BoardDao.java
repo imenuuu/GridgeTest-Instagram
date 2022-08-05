@@ -49,9 +49,9 @@ public class BoardDao {
                 "       B.id                                                            'boardId',\n" +
                 "       B.description,\n" +
                 "       (select exists(select BL.id from BoardLike BL where BL.boardId=B.id and BL.userId=F.userId))'likeCheck',\n" +
-                "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id) 'likeCnt',\n" +
-                "       ((select count(C.id) from Comment C where C.boardId=B.id)+\n" +
-                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id))'commentCnt',\n" +
+                "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id and BL.status='TRUE') 'likeCnt',\n" +
+                "       ((select count(C.id) from Comment C where C.boardId=B.id and C.status='TRUE')+\n" +
+                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id and RC.status='TRUE'))'commentCnt',\n" +
                 "\n" +
                 "       case\n" +
                 "           when YEAR(B.createdDate) < YEAR(now())\n" +
@@ -127,9 +127,9 @@ public class BoardDao {
                 "       B.id                                                            'boardId',\n" +
                 "       B.description,\n" +
                 "       (select exists(select BL.id from BoardLike BL where BL.boardId=B.id and BL.userId=?))'likeCheck',\n" +
-                "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id) 'likeCnt',\n" +
-                "       ((select count(C.id) from Comment C where C.boardId=B.id)+\n" +
-                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id))'commentCnt',\n" +
+                "       (select count(BL.id) from BoardLike BL where BL.boardId = B.id and BL.status='TRUE') 'likeCnt',\n" +
+                "       ((select count(C.id) from Comment C where C.boardId=B.id and C.status='TRUE')+\n" +
+                "       (select count(RC.id) from ReComment RC join Comment C on C.id=RC.id where C.boardId=B.id and RC.status='TRUE'))'commentCnt',\n" +
                 "       case\n" +
                 "           when YEAR(B.createdDate) < YEAR(now())\n" +
                 "               then concat(YEAR(B.createdDate), '년 ', MONTH(B.createdDate), '월 ', DAY(B.createdDate), '일')\n" +
@@ -195,5 +195,10 @@ public class BoardDao {
     public int checkBoard(Long boardId) {
         String checkQuery = "select exists(select id from Board where id=? and status='TRUE')";
         return this.jdbcTemplate.queryForObject(checkQuery,int.class,boardId);
+    }
+
+    public void deleteBoard(Long boardId) {
+        String deleteQuery = "update Board set status='FALSE' where id=?";
+        this.jdbcTemplate.update(deleteQuery,boardId);
     }
 }

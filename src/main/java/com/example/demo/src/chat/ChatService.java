@@ -238,4 +238,8 @@ public class ChatService implements ChatServiceIF{
     public void addChatId(Long chatId) {
         chatDao.addChatId(chatId);
     }
+
+    public void postMessageLike(PostMessageLikeReq postMessageLikeReq) {
+        chatDao.postMessageLike(postMessageLikeReq);
+    }
 }

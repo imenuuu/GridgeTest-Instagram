@@ -38,7 +38,7 @@ public class CommentDao {
                 "                   end as 'boardTime'\n" +
                 "from User U\n" +
                 "join Board B on B.userId = U.id and B.status='TRUE'\n" +
-                "where B.id=?";
+                "where B.id=? and B.status='TRUE' and B.suspensionStatus='FALSE'";
         String getCommentQuery="select U.id                                                                'userId',\n" +
                 "       U.profileImg                                                        'profileImgUrl',\n" +
                 "       U.userId                                                            'userLoginId',\n" +
@@ -56,7 +56,7 @@ public class CommentDao {
                 "                   when TIMESTAMPDIFF(hour, C.createdDate, now()) < 24\n" +
                 "                       then concat(TIMESTAMPDIFF(hour, C.createdDate, now()), '시간 전')\n" +
                 "                   end as 'commentTime',\n" +
-                "       (select count(CL.id) from CommentLike CL where CL.commentId = C.id) 'likeCnt',\n" +
+                "       (select count(CL.id) from CommentLike CL where CL.commentId = C.id and CL.status='TRUE') 'likeCnt',\n" +
                 "       (select count(RC.id) from ReComment RC where RC.commentId = C.id and RC.status='TRUE') 'reCommentCnt'," +
                 "(select exists(select id from CommentLike CL where CL.commentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
@@ -169,7 +169,7 @@ public class CommentDao {
                 "                   when TIMESTAMPDIFF(hour, C.createdDate, now()) < 24\n" +
                 "                       then concat(TIMESTAMPDIFF(hour, C.createdDate, now()), '시간 전')\n" +
                 "                   end as 'reCommentTime',\n" +
-                "       (select count(CL.id) from ReCommentLike CL where CL.reCommentId = C.id) 'likeCnt',\n" +
+                "       (select count(CL.id) from ReCommentLike CL where CL.reCommentId = C.id and CL.status='TRUE') 'likeCnt',\n" +
                 "       (select exists(select id from ReCommentLike CL where CL.reCommentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join ReComment C on C.userId = U.id\n" +
@@ -223,7 +223,7 @@ public class CommentDao {
         this.jdbcTemplate.update(deleteReCommentQuery,reCommentId);
     }
 
-    public void deleteComment(Long userId, Long reCommentId) {
+    public void deleteComment(Long reCommentId) {
         String deleteReCommentQuery="update ReComment set status='FALSE' where id=?";
         this.jdbcTemplate.update(deleteReCommentQuery,reCommentId);
     }

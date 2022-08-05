@@ -1,5 +1,4 @@
 package com.example.demo.src.admin.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetBoardInfoRes {
+public class GetBoardReportInfoRes {
     private Long boardId;
     private Long userId;
     private String description;
@@ -19,5 +18,6 @@ public class GetBoardInfoRes {
     private Timestamp updatedDate;
     private String suspensionStatus;
     private String status;
+    private String cause;
     private List<BoardImg> boardImgList;
 }

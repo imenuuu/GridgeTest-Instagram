@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
+import static com.example.demo.config.BaseResponseStatus.NOT_EXIST_FOLLOW;
 
 @Service
 public class FollowProvider {
@@ -65,6 +66,22 @@ public class FollowProvider {
             return followDao.checkFollow(userId, followUserId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkFollowRequest(Long userId, Long followUserId) throws BaseException {
+        try{
+            return followDao.checkFollowRequest(userId, followUserId);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public Long getFollowRequestId(Long userId, Long followUserId) throws BaseException {
+        try{
+            return followDao.getFollowRequestId(userId, followUserId);
+        }catch(Exception exception){
+            throw new BaseException(NOT_EXIST_FOLLOW);
         }
     }
 }

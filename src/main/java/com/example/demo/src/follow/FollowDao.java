@@ -89,7 +89,7 @@ public class FollowDao {
     public List<GetFollowKeepRes> getFollowKeep(Long userId) {
         String getFollowKeepQuery="select FR.id'requestId',U.id'userId',U.profileImg'profileImgUrl',U.userId'userLoginId',U.name'userName'\n" +
                 "from FollowRequest FR join User U on FR.userId= U.id\n" +
-                "where FR.requestUserId = ?";
+                "where FR.requestUserId = ? and FR.status='TRUE'";
         return this.jdbcTemplate.query(getFollowKeepQuery,
                 (rs,rowNum) ->new GetFollowKeepRes(
                         rs.getLong("requestId"),
@@ -112,5 +112,22 @@ public class FollowDao {
             userId,followUserId
         };
         return this.jdbcTemplate.queryForObject(checkIdQuery,int.class,checkIdParams);
+    }
+
+    public int checkFollowRequest(Long userId, Long followUserId) {
+        String checkIdQuery = "select exists(select id from FollowRequest where userId=? and requestUserId=?)";
+        Object[] checkIdParams = new Object[]{
+                userId,followUserId
+        };
+        return this.jdbcTemplate.queryForObject(checkIdQuery,int.class,checkIdParams);
+    }
+
+    public Long getFollowRequestId(Long userId, Long followUserId) {
+        String checkIdQuery = "select  id from FollowRequest where userId=? and requestUserId=?";
+        Object[] checkIdParams = new Object[]{
+                userId,followUserId
+        };
+        return this.jdbcTemplate.queryForObject(checkIdQuery,Long.class,checkIdParams);
+
     }
 }

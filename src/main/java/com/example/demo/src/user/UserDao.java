@@ -4,15 +4,22 @@ package com.example.demo.src.user;
 import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    DataSource dataSource;
 
     List<GetProfileBoardRes> getProfileBoard;
     @Autowired
@@ -97,6 +104,7 @@ public class UserDao {
         String getPwdQuery = "select id,userId,name,password from User where phoneNumber = ?";
         String getPwdParams = postLoginReq.getId();
 
+        System.out.println(getPwdParams);
         return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs,rowNum)-> new User(
                         rs.getLong("id"),
@@ -115,17 +123,17 @@ public class UserDao {
 
     public List<GetMyProfileRes> getMyProfile(Long userId) {
         String getMyProfileQuery = "select U.id         'userId',\n" +
-                "       U.userId     'userName',\n" +
+                "       U.userId     'userLoginId',\n" +
                 "       U.profileImg 'profileImgUrl',\n" +
                 "       U.name,\n" +
                 "       U.introduce,\n" +
                 "       U.webSite,\n" +
                 "       count(B.id)'boardCnt',\n" +
                 "       (select count(F.followUserId) from Following F\n" +
-                "        where F.followUserId = U.id and F  .userId != U.id)'followerCnt',\n" +
+                "        where F.followUserId = U.id and F.userId != U.id)'followerCnt',\n" +
                 "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt'\n" +
                 "from User U\n" +
-                "left join Board B on B.userId=U.id\n" +
+                "left join Board B on B.userId=U.id and B.status='TRUE' and B.suspensionStatus='TRUE'\n" +
                 "where U.id = ?";
         String getProfileBoardQuery="select B.id 'boardId', " +
                 "(select BI.boardImgurl from BoardImg BI where BI.boardId=B.id order by BI.id asc limit 1 ) as 'imgurl'\n" +
@@ -134,7 +142,7 @@ public class UserDao {
         return this.jdbcTemplate.query(getMyProfileQuery,
                 (rs,rowNum) ->new GetMyProfileRes(
                         rs.getLong("userId"),
-                        rs.getString("userName"),
+                        rs.getString("userLoginId"),
                         rs.getString("profileImgUrl"),
                         rs.getString("name"),
                         rs.getString("introduce"),
@@ -153,15 +161,15 @@ public class UserDao {
     public List<GetUserProfileRes> getUserProfile(Long userId, Long targetId) {
         String getMyProfileQuery = "select U.userPublic," +
                 "       U.id         'userId',\n" +
-                "       U.userId     'userName',\n" +
+                "       U.userId     'userLoginId',\n" +
                 "       U.profileImg 'profileImgUrl',\n" +
                 "       U.name,\n" +
                 "       U.introduce,\n" +
                 "       U.webSite,\n" +
                 "       count(B.id)'boardCnt',\n" +
                 "       (select count(F.followUserId) from Following F\n" +
-                "        where F.followUserId = U.id and F  .userId != U.id)'followerCnt',\n" +
-                "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt',\n" +
+                "        where F.followUserId = U.id and F.userId != U.id and F.status='TRUE')'followerCnt',\n" +
+                "       (select count(F.userId) from Following F where F.userId=U.id and F.status='TRUE' )'followingCnt',\n" +
                 "       (select exists(select F.followUserId from Following F where F.userId=? and F.followUserId=U.id ))'followCheck'" +
                 "from User U\n" +
                 "left join Board B on B.userId=U.id\n" +
@@ -174,7 +182,7 @@ public class UserDao {
                 (rs,rowNum) ->new GetUserProfileRes(
                         rs.getString("userPublic"),
                         rs.getLong("userId"),
-                        rs.getString("userName"),
+                        rs.getString("userLoginId"),
                         rs.getString("profileImgUrl"),
                         rs.getString("name"),
                         rs.getString("introduce"),
@@ -255,15 +263,15 @@ public class UserDao {
     public List<GetClosedProfileRes> getCloesdProfile(Long userId, Long profileUserId) {
             String getMyProfileQuery = "select U.userPublic," +
                     "       U.id         'userId',\n" +
-                    "       U.userId     'userName',\n" +
+                    "       U.userId     'userLoginId',\n" +
                     "       U.profileImg 'profileImgUrl',\n" +
                     "       U.name,\n" +
                     "       U.introduce,\n" +
                     "       U.webSite,\n" +
                     "       count(B.id)'boardCnt',\n" +
                     "       (select count(F.followUserId) from Following F\n" +
-                    "        where F.followUserId = U.id and F  .userId != U.id)'followerCnt',\n" +
-                    "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt',\n" +
+                    "        where F.followUserId = U.id and F.userId != U.id and F.status='TRUE')'followerCnt',\n" +
+                    "       (select count(F.userId) from Following F where F.userId=U.id and F.status='TRUE')'followingCnt',\n" +
                     "       (select exists(select F.followUserId from Following F where F.userId=? and F.followUserId=U.id ))'followCheck'" +
                     "from User U\n" +
                     "left join Board B on B.userId=U.id  and B.status='TRUE' and B.suspensionStatus='FALSE' \n" +
@@ -271,7 +279,7 @@ public class UserDao {
             return this.jdbcTemplate.query(getMyProfileQuery,
                     (rs,rowNum) ->new GetClosedProfileRes(
                             rs.getLong("userId"),
-                            rs.getString("userName"),
+                            rs.getString("userLoginId"),
                             rs.getString("profileImgUrl"),
                             rs.getString("name"),
                             rs.getString("introduce"),
@@ -329,5 +337,53 @@ public class UserDao {
         String updateLogInDateQuery = "update User set logInDate=now() where id=?";
         this.jdbcTemplate.update(updateLogInDateQuery,userId);
     }
+
+
+    public void updateAllStatus(Long userId) throws SQLException {
+        String updateUserQuery = "update User set userStatus='FALSE' where id=?";
+        String updateBoardQuery = "update Board set status='FALSE' where userId=?";
+        String updateBoardLikeQuery = "update BoardLike set status='FALSE' where userId=?";
+        String updateBoardReportQuery = "update BoardReport set status='FALSE' where userId=?";
+        String updateCommentQuery = "update Comment set status='FALSE' where userId=?";
+        String updateCommentLikeQuery = "update CommentLike set status='FALSE' where userId=?";
+        String updateFollowingQuery = "update Following set status='FALSE' where userId=?";
+        String updateFollowingRequestQuery = "update FollowRequest set status='FALSE' where userId=?";
+        String updateKakaoUserQuery = "update KakaoUser set status='FALSE' where userId=?";
+        String updateMessageQuery = "update Message set status='FALSE' where userId=?";
+        String updateMessageLikeQuery = "update MessageLike set status='FALSE' where userId=? ";
+        String updateReCommentQuery = "update ReComment set status='FALSE' where userId=?";
+        String updateReCommentLikeQuery = "update ReCommentLike set status='FALSE' where userId=?";
+
+        TransactionSynchronizationManager.initSynchronization(); // 트랜잭션 동기화 작업 초기화
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        conn.setAutoCommit(false);
+        try {
+            this.jdbcTemplate.update(updateUserQuery, userId);
+            this.jdbcTemplate.update(updateBoardQuery, userId);
+            this.jdbcTemplate.update(updateBoardLikeQuery, userId);
+            this.jdbcTemplate.update(updateBoardReportQuery, userId);
+            this.jdbcTemplate.update(updateCommentQuery, userId);
+            this.jdbcTemplate.update(updateCommentLikeQuery, userId);
+            this.jdbcTemplate.update(updateFollowingQuery, userId);
+            this.jdbcTemplate.update(updateFollowingRequestQuery, userId);
+            this.jdbcTemplate.update(updateKakaoUserQuery, userId);
+            this.jdbcTemplate.update(updateMessageQuery, userId);
+            this.jdbcTemplate.update(updateMessageLikeQuery, userId);
+            this.jdbcTemplate.update(updateReCommentQuery, userId);
+            this.jdbcTemplate.update(updateReCommentLikeQuery, userId);
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+            TransactionSynchronizationManager.unbindResource(this.dataSource);
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+
+    }
+
+
+
+
 }
 

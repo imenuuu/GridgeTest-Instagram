@@ -130,17 +130,25 @@ public class UserController {
     @ApiOperation(value="로그인",notes="로그인 API")
     public BaseResponse<PostLoginRes> logIn(@RequestBody PostLoginReq postLoginReq){
         try{
-            // TODO: 로그인 값들에 대한 형식적인 validatin 처리해주셔야합니다!
-            // TODO: 유저의 status ex) 비활성화된 유저, 탈퇴한 유저 등을 관리해주고 있다면 해당 부분에 대한 validation 처리도 해주셔야합니다.
             PostLoginRes postLoginRes=null;
-            if(postLoginReq.getType()=="phone"){
+            if(isRegexPhoneNumber(postLoginReq.getId())){
+                 if(userProvider.checkPhoneNumber(postLoginReq.getId())!=1){
+                     return new BaseResponse<>(FAILED_TO_LOGIN);
+                 }
                  postLoginRes=userProvider.phoneLogin(postLoginReq);
             }
-            else {
+            else if(isRegexId(postLoginReq.getId())){
+
+                if(isRegexIdString(postLoginReq.getId())){
+                    return new BaseResponse<>(POST_USERS_INVALID_ID);
+                }
+                if(userProvider.checkId(postLoginReq.getId())!=1){
+                    return new BaseResponse<>(FAILED_TO_LOGIN);
+                }
                 postLoginRes = userProvider.logIn(postLoginReq);
             }
             userService.updateLogInDate(postLoginRes.getUserId());
-            userService.logIn(postLoginRes.getUserId());
+
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -177,9 +185,6 @@ public class UserController {
     @ResponseBody
     @GetMapping("/check/sendSMS")
     public BaseResponse<String> sendSMS(@RequestParam(value="to")String to)throws CoolsmsException {
-        if(!isRegexPhoneNumber(to)){
-            return new BaseResponse<>(POST_USERS_INVALID_PHONE);
-        }
         String result = userService.PhoneNumberCheck(to);
         return new BaseResponse<>(result);
     }
@@ -212,6 +217,9 @@ public class UserController {
 
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if(userId==profileUserId){
+                return new BaseResponse<>(MY_PROFILE_USER);
             }
             if(userProvider.checkUser(profileUserId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
@@ -290,6 +298,7 @@ public class UserController {
         }
     }
 
+    //카카오 회원가입
     @ResponseBody
     @PostMapping("/kakao")
     @ApiOperation(value="카카오 유저 회원가입",notes="카카오 유저 회원가입 API")
@@ -308,6 +317,9 @@ public class UserController {
         if (!isRegexId(postKakaoUserReq.getUserId())) {
             return new BaseResponse<>(POST_USERS_INVALID_ID);
         }
+        if(isRegexIdString(postKakaoUserReq.getUserId())){
+            return new BaseResponse<>(POST_USERS_INVALID_ID);
+        }
         try {
             KakaoInfo kakaoInfo = userService.getKakaoUser(postKakaoUserReq.getAccessToken());
             PostUserRes postUserRes = null;
@@ -324,7 +336,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/userBlock/{userId}/{blockUserId}")
+    @PostMapping("/block/{userId}/{blockUserId}")
     public BaseResponse<String> userBlock(@PathVariable("userId") Long userId,@PathVariable("blockUserId") Long blockUserId){
         try {
             Long userIdByJwt = jwtService.getUserIdx();
@@ -332,7 +344,7 @@ public class UserController {
             if (userId != userIdByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(userProvider.checkUser(blockUserId)==1){
+            if(userProvider.checkUser(blockUserId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
             followService.unFollow(userId,blockUserId);
@@ -462,6 +474,24 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @ResponseBody
+    @PatchMapping("/drop/{userId}")
+    public BaseResponse<String> deleteUser(@PathVariable("userId") Long userId){
+        try {
+            Long userIdByJwt = jwtService.getUserIdx();
+            //userId와 접근한 유저가 같은지 확인
+            if (userId != userIdByJwt) {
+            }
+            String result="";
+            userService.updateAllStatus(userId);
+
+            return new BaseResponse<>(result);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
 
 
 

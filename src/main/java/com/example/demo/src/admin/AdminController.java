@@ -71,33 +71,49 @@ public class AdminController {
             String strNewDtFormat = newDtFormat.format(formatDate);
             dateQuery="and DATE(createdDate)='"+strNewDtFormat+"'";
         }
-        System.out.println(date);
-        System.out.println(dateQuery);
-        GetUserReq getUserReq=new GetUserReq(nameQuery,userIdQuery,statusQuery,dateQuery,paging);
-        List<GetUserRes> getUserRes=adminProvider.getUsers(getUserReq);
-        return new BaseResponse<>(getUserRes);
+        try {
+            GetUserReq getUserReq = new GetUserReq(nameQuery, userIdQuery, statusQuery, dateQuery, paging);
+            List<GetUserRes> getUserRes = adminProvider.getUsers(getUserReq);
+            return new BaseResponse<>(getUserRes);
+        }
+        catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ResponseBody
     @GetMapping("/users/{userId}")
     public BaseResponse<List<GetUserInfoRes>> getUserInfo(@PathVariable("userId")Long userId){
-        List<GetUserInfoRes> getUserInfoRes=adminProvider.getUserInfo(userId);
-        return new BaseResponse<>(getUserInfoRes);
+        try {
+            List<GetUserInfoRes> getUserInfoRes = adminProvider.getUserInfo(userId);
+            return new BaseResponse<>(getUserInfoRes);
+        }
+        catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
 
     }
     @ResponseBody
     @PatchMapping("/users/{userId}")
-    public BaseResponse<String> userSuspension(@PathVariable("userId")Long userId){
-        String result="유저 계정 정지 성공";
-        adminService.userSuspension(userId);
-        return new BaseResponse<>(result);
+    public BaseResponse<String> userSuspension(@PathVariable("userId")Long userId) {
+        try {
+            String result = "유저 계정 정지 성공";
+            adminService.userSuspension(userId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ResponseBody
     @GetMapping("/boards/{boardId}")
     public BaseResponse<List<GetBoardInfoRes>> getBoardInfo(@PathVariable("boardId")Long boardId){
-        List<GetBoardInfoRes> getUserInfoRes=adminProvider.getBoardInfo(boardId);
-        return new BaseResponse<>(getUserInfoRes);
+        try {
+            List<GetBoardInfoRes> getUserInfoRes = adminProvider.getBoardInfo(boardId);
+            return new BaseResponse<>(getUserInfoRes);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @SneakyThrows
@@ -137,30 +153,129 @@ public class AdminController {
             String strNewDtFormat = newDtFormat.format(formatDate);
             dateQuery="and DATE(B.createdDate)='"+strNewDtFormat+"'";
         }
-        GetBoardReq getBoardReq=new GetBoardReq(userIdQuery,statusQuery,dateQuery,paging);
-        List<GetBoardRes> getBoardRes=adminProvider.getBoards(getBoardReq);
-        return new BaseResponse<>(getBoardRes);
+        try {
+            GetBoardReq getBoardReq = new GetBoardReq(userIdQuery, statusQuery, dateQuery, paging);
+            List<GetBoardRes> getBoardRes = adminProvider.getBoards(getBoardReq);
+            return new BaseResponse<>(getBoardRes);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ResponseBody
     @GetMapping("/report/boards")
     public BaseResponse<List<GetBoardReportRes>> getBoardReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
-        List<GetBoardReportRes> getBoardReportRes = adminProvider.getBoardReport(paging);
-        return new BaseResponse<>(getBoardReportRes);
+        try {
+            List<GetBoardReportRes> getBoardReportRes = adminProvider.getBoardReport(paging);
+            return new BaseResponse<>(getBoardReportRes);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ResponseBody
     @GetMapping("/report/comments")
     public BaseResponse<List<GetCommentReportRes>> getCommentReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
-        List<GetCommentReportRes> getCommentReportRes = adminProvider.getCommentReport(paging);
-        return new BaseResponse<>(getCommentReportRes);
+        try {
+            List<GetCommentReportRes> getCommentReportRes = adminProvider.getCommentReport(paging);
+            return new BaseResponse<>(getCommentReportRes);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ResponseBody
     @GetMapping("/report/reComments")
     public BaseResponse<List<GetReCommentReportRes>> getReCommentReport(@RequestParam(value = "paging",defaultValue = "1")int paging ){
-        List<GetReCommentReportRes> getReCommentReportRes = adminProvider.getReCommentReport(paging);
-        return new BaseResponse<>(getReCommentReportRes);
+        try {
+            List<GetReCommentReportRes> getReCommentReportRes = adminProvider.getReCommentReport(paging);
+            return new BaseResponse<>(getReCommentReportRes);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @DeleteMapping("/report/boards/{reportId}")
+    public BaseResponse<String> deleteBoardReport(@PathVariable("reportId") Long reportId){
+        try {
+            String result = "신고 삭제 성공";
+            adminService.deleteBoardReport(reportId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @DeleteMapping("/report/comments/{reportId}")
+    public BaseResponse<String> deleteCommentReport(@PathVariable("reportId") Long reportId){
+        try {
+            String result = "신고 삭제 성공";
+            adminService.deleteCommentReport(reportId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @DeleteMapping("/report/reComments/{reportId}")
+    public BaseResponse<String> deleteReCommentReport(@PathVariable("reportId") Long reportId){
+        try {
+            String result = "신고 삭제 성공";
+            adminService.deleteReCommentReport(reportId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/report/boards/{reportId}")
+    public BaseResponse<List<GetBoardReportInfoRes>> getBoardReportInfo(@PathVariable("reportId")Long reportId){
+        try{
+            List<GetBoardReportInfoRes> getBoardReportInfoList=adminProvider.getBoardReportInfo(reportId);
+            return new BaseResponse<>(getBoardReportInfoList);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/report/boards/{boardId}")
+    public BaseResponse<String> deleteBoard(@PathVariable("boardId") Long boardId){
+        try{
+            String result="삭제 처리 성공";
+            adminService.deleteBoard(boardId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/report/comments/{commentId}")
+    public BaseResponse<String> deleteComment(@PathVariable("commentId") Long commentId){
+        try{
+            String result="삭제 처리 성공";
+            adminService.deleteComment(commentId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/report/reComments/{reCommentId}")
+    public BaseResponse<String> deleteReComment(@PathVariable("reCommentId") Long reCommentId){
+        try{
+            String result="삭제 처리 성공";
+            adminService.deleteReComment(reCommentId);
+            return new BaseResponse<>(result);
+        }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
 

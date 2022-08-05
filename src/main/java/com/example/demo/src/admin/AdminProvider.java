@@ -1,9 +1,13 @@
 package com.example.demo.src.admin;
 
+import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponse;
 import com.example.demo.src.admin.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
 
 @Service
 public class AdminProvider {
@@ -12,32 +16,71 @@ public class AdminProvider {
     public AdminProvider(AdminDao adminDao) {
         this.adminDao = adminDao;
     }
-    public List<GetUserRes> getUsers(GetUserReq getUserReq) {
-        return adminDao.getUsers(getUserReq);
+    public List<GetUserRes> getUsers(GetUserReq getUserReq) throws BaseException {
+        try {
+            return adminDao.getUsers(getUserReq);
+        }
+        catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetUserInfoRes> getUserInfo(Long userId) {
-        List<GetUserInfoRes> getUserInfoRes=adminDao.getUserInfo(userId);
-        return getUserInfoRes;
+    public List<GetUserInfoRes> getUserInfo(Long userId) throws BaseException {
+        try {
+            List<GetUserInfoRes> getUserInfoRes = adminDao.getUserInfo(userId);
+            return getUserInfoRes;
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetBoardRes> getBoards(GetBoardReq getBoardReq) {
-        return adminDao.getBoards(getBoardReq);
+    public List<GetBoardRes> getBoards(GetBoardReq getBoardReq) throws BaseException {
+        try {
+            return adminDao.getBoards(getBoardReq);
+        }
+        catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetBoardInfoRes> getBoardInfo(Long boardId) {
-        return adminDao.getBoardInfo(boardId);
+    public List<GetBoardInfoRes> getBoardInfo(Long boardId) throws BaseException {
+        try {
+            return adminDao.getBoardInfo(boardId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetBoardReportRes> getBoardReport(int paging) {
-        return adminDao.getBoardReport(paging);
+    public List<GetBoardReportRes> getBoardReport(int paging) throws BaseException {
+        try {
+            return adminDao.getBoardReport(paging);
+        }
+        catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+        }
+
+    public List<GetCommentReportRes> getCommentReport(int paging) throws BaseException {
+        try {
+            return adminDao.getCommentReport(paging);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetCommentReportRes> getCommentReport(int paging) {
-        return adminDao.getCommentReport(paging);
+    public List<GetReCommentReportRes> getReCommentReport(int paging) throws BaseException {
+        try {
+            return adminDao.getReCommentReport(paging);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 
-    public List<GetReCommentReportRes> getReCommentReport(int paging) {
-        return adminDao.getReCommentReport(paging);
+    public List<GetBoardReportInfoRes> getBoardReportInfo(Long reportId) throws BaseException {
+        try{
+            return adminDao.getBoardReportInfo(reportId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

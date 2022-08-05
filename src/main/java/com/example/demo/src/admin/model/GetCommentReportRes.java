@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -14,5 +15,5 @@ public class GetCommentReportRes {
     private Long commentId;
     private String comment;
     private String cause;
-    private Date createdDate;
+    private Timestamp createdDate;
 }

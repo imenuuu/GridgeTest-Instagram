@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -15,5 +16,5 @@ public class GetBoardReportRes {
     private Long boardId;
     private String description;
     private String cause;
-    private Date createdDate;
+    private Timestamp createdDate;
 }

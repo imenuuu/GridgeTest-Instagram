@@ -97,4 +97,12 @@ public class CommentService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void deleteComment(Long commentId) throws BaseException {
+        try{
+            commentDao.deleteComment(commentId);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
