@@ -221,4 +221,50 @@ public class AdminDao {
         String deleteQuery = "update ReComment set suspensionStatus='TRUE' where id=?";
         this.jdbcTemplate.update(deleteQuery,reCommentId);
     }
+
+    public List<GetLogRes> getBoardLog(GetLogQueryReq getLogQueryReq) {
+        String getBoardLogQuery = String.format("select BL.id'logId',U.userId'userLoginId',type,BL.createdDate'logCreated' " +
+                "from BoardLog BL join User U on U.id=BL.userId where BL.id>0 %s %s order by BL.createdDate desc limit ?,?",getLogQueryReq.getTypeQuery(),getLogQueryReq.getDateQuery());
+        Object[] pagingParams=new Object[]{
+                (getLogQueryReq.getPaging()-1)*10,getLogQueryReq.getPaging()*10
+        };
+        return this.jdbcTemplate.query(getBoardLogQuery,
+                (rs, rowNum) -> new GetLogRes(
+                        rs.getLong("logId"),
+                        rs.getString("userLoginId"),
+                        rs.getString("type"),
+                        rs.getTimestamp("logCreated")
+                ),pagingParams);
+
+    }
+
+    public List<GetLogRes> getCommentLog(GetLogQueryReq getLogQueryReq) {
+        String getCommentLogQuery = String.format("select CL.id'logId',U.userId'userLoginId',type,CL.createdDate'logCreated' " +
+                "from CommentLog CL join User U on U.id=CL.userId where CL.id>0 %s %s order by CL.createdDate desc limit ?,?",getLogQueryReq.getTypeQuery(),getLogQueryReq.getDateQuery());
+        Object[] pagingParams=new Object[]{
+                (getLogQueryReq.getPaging()-1)*10,getLogQueryReq.getPaging()*10
+        };
+        return this.jdbcTemplate.query(getCommentLogQuery,
+                (rs, rowNum) -> new GetLogRes(
+                        rs.getLong("logId"),
+                        rs.getString("userLoginId"),
+                        rs.getString("type"),
+                        rs.getTimestamp("logCreated")
+                ),pagingParams);
+    }
+
+    public List<GetLogRes> getReCommentLog(GetLogQueryReq getLogQueryReq) {
+        String getCommentLogQuery = String.format("select CL.id'logId',U.userId'userLoginId',type,CL.createdDate'logCreated' " +
+                "from ReCommentLog CL join User U on U.id=CL.userId where CL.id>0 %s %s order by CL.createdDate desc limit ?,?",getLogQueryReq.getTypeQuery(),getLogQueryReq.getDateQuery());
+        Object[] pagingParams=new Object[]{
+                (getLogQueryReq.getPaging()-1)*10,getLogQueryReq.getPaging()*10
+        };
+        return this.jdbcTemplate.query(getCommentLogQuery,
+                (rs, rowNum) -> new GetLogRes(
+                        rs.getLong("logId"),
+                        rs.getString("userLoginId"),
+                        rs.getString("type"),
+                        rs.getTimestamp("logCreated")
+                ),pagingParams);
+    }
 }

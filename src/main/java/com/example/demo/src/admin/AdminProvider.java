@@ -83,4 +83,28 @@ public class AdminProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public List<GetLogRes> getBoardLog(GetLogQueryReq getLogQueryReq) throws BaseException {
+        try{
+            return adminDao.getBoardLog(getLogQueryReq);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetLogRes> getCommentLog(GetLogQueryReq getLogQueryReq) throws BaseException {
+        try{
+            return adminDao.getCommentLog(getLogQueryReq);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetLogRes> getReCommentLog(GetLogQueryReq getLogQueryReq) throws BaseException {
+        try{
+            return adminDao.getReCommentLog(getLogQueryReq);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

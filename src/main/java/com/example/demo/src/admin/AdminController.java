@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -276,6 +277,170 @@ public class AdminController {
         }catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
+    }
+
+    @ResponseBody
+    @GetMapping("/log/boards")
+    public BaseResponse<List<GetLogRes>> getBoardLog(@RequestParam(required = false,value="type",defaultValue="0") int type,
+                                                     @RequestParam(required = false,value="startDate",defaultValue="all") String startDate,
+                                                     @RequestParam(required = false,value="finishDate",defaultValue="all") String finishDate,
+                                                     @RequestParam(required = false,value = "paging",defaultValue = "1") int paging) throws ParseException {
+
+        String typeQuery="";
+        //활성화
+        System.out.println(type);
+        if (type==1) {
+            typeQuery = "and type='CREATE'";
+        }
+        //본인삭제
+        else if (type==2) {
+            typeQuery = "and type='UPDATE'";
+        }
+        //admin 에서 삭제처리
+        else if (type==3) {
+            typeQuery = "and type='DELETE'";
+        }
+        String dateQuery="";
+        if(!startDate.equals("all")) {
+            String startFormat = null;
+            if (!startDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(startDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                startFormat = newDtFormat.format(formatDate);
+            }
+            String finishFormat = null;
+            if (!finishDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(finishDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                finishFormat = newDtFormat.format(formatDate);
+            }
+            dateQuery = "DATE(BL.createdDate) BETWEEN '" + startFormat + "' AND '" + finishFormat + "'";
+
+        }
+
+        GetLogQueryReq getLogQueryReq=new GetLogQueryReq(typeQuery,dateQuery,paging);
+        try {
+            List<GetLogRes> getLogRes = adminProvider.getBoardLog(getLogQueryReq);
+            return new BaseResponse<>(getLogRes);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+
+    }
+
+    @ResponseBody
+    @GetMapping("/log/comments")
+    public BaseResponse<List<GetLogRes>> getCommentLog(@RequestParam(required = false,value="type",defaultValue="0") int type,
+                                                     @RequestParam(required = false,value="startDate",defaultValue="all") String startDate,
+                                                     @RequestParam(required = false,value="finishDate",defaultValue="all") String finishDate,
+                                                     @RequestParam(required = false,value = "paging",defaultValue = "1") int paging) throws ParseException {
+
+        String typeQuery="";
+        //활성화
+        System.out.println(type);
+        if (type==1) {
+            typeQuery = "and type='CREATE'";
+        }
+        //본인삭제
+        else if (type==2) {
+            typeQuery = "and type='UPDATE'";
+        }
+        //admin 에서 삭제처리
+        else if (type==3) {
+            typeQuery = "and type='DELETE'";
+        }
+        String dateQuery="";
+        if(!startDate.equals("all")) {
+            String startFormat = null;
+            if (!startDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(startDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                startFormat = newDtFormat.format(formatDate);
+            }
+            String finishFormat = null;
+            if (!finishDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(finishDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                finishFormat = newDtFormat.format(formatDate);
+            }
+            dateQuery = "DATE(CL.createdDate) BETWEEN '" + startFormat + "' AND '" + finishFormat + "'";
+
+        }
+
+        GetLogQueryReq getLogQueryReq=new GetLogQueryReq(typeQuery,dateQuery,paging);
+        try {
+            List<GetLogRes> getLogRes = adminProvider.getCommentLog(getLogQueryReq);
+            return new BaseResponse<>(getLogRes);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+
+    }
+
+    @ResponseBody
+    @GetMapping("/log/reComments")
+    public BaseResponse<List<GetLogRes>> getReCommentLog(@RequestParam(required = false,value="type",defaultValue="0") int type,
+                                                       @RequestParam(required = false,value="startDate",defaultValue="all") String startDate,
+                                                       @RequestParam(required = false,value="finishDate",defaultValue="all") String finishDate,
+                                                       @RequestParam(required = false,value = "paging",defaultValue = "1") int paging) throws ParseException {
+
+        String typeQuery="";
+        //활성화
+        if (type==1) {
+            typeQuery = "and type='CREATE'";
+        }
+        //본인삭제
+        else if (type==2) {
+            typeQuery = "and type='UPDATE'";
+        }
+        //admin 에서 삭제처리
+        else if (type==3) {
+            typeQuery = "and type='DELETE'";
+        }
+        String dateQuery="";
+        if(!startDate.equals("all")) {
+            String startFormat = null;
+            if (!startDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(startDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                startFormat = newDtFormat.format(formatDate);
+            }
+            String finishFormat = null;
+            if (!finishDate.equals("all")) {
+                SimpleDateFormat dtFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat newDtFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // String 타입을 Date 타입으로 변환
+                Date formatDate = dtFormat.parse(finishDate);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                finishFormat = newDtFormat.format(formatDate);
+            }
+            dateQuery = "DATE(CL.createdDate) BETWEEN '" + startFormat + "' AND '" + finishFormat + "'";
+
+        }
+
+        GetLogQueryReq getLogQueryReq=new GetLogQueryReq(typeQuery,dateQuery,paging);
+        try {
+            List<GetLogRes> getLogRes = adminProvider.getReCommentLog(getLogQueryReq);
+            return new BaseResponse<>(getLogRes);
+        }catch(BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+
     }
 
 
