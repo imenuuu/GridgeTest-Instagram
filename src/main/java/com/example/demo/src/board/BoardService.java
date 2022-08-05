@@ -4,6 +4,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.src.board.model.PatchBoardReq;
 import com.example.demo.src.board.model.PostBoardReportReq;
 import com.example.demo.src.board.model.PostBoardReq;
+import com.example.demo.src.board.model.PostLogReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,6 +77,24 @@ public class BoardService {
     public void deleteBoard(Long boardId) throws BaseException {
         try {
             boardDao.deleteBoard(boardId);
+        }
+        catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createLog(PostLogReq postLogReq) throws BaseException {
+        try {
+            boardDao.createLog(postLogReq);
+        }
+        catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createReportLog(PostLogReq postLogReq) throws BaseException {
+        try {
+            boardDao.createReportLog(postLogReq);
         }
         catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);

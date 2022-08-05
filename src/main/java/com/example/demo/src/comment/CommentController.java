@@ -3,6 +3,7 @@ package com.example.demo.src.comment;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.board.model.PostBoardReportReq;
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.comment.model.*;
 import com.example.demo.src.follow.FollowProvider;
 import com.example.demo.src.follow.FollowService;
@@ -87,6 +88,8 @@ public class CommentController {
             if(commentProvider.checkBoard(postCommentReq.getBoardId())!=1){
                 return new BaseResponse<>(NOT_EXIST_BOARD);
             }
+            PostLogReq postLogReq = new PostLogReq("CREATE",postCommentReq.getUserId());
+            commentService.createLog(postLogReq);
             commentService.postComment(postCommentReq);
             String result="댓글 달기 성공";
             return new BaseResponse<>(result);
@@ -148,6 +151,8 @@ public class CommentController {
             if(commentProvider.checkComment(postCommentReq.getCommentId())!=1){
                 return new BaseResponse<>(NOT_EXIST_COMMENT);
             }
+            PostLogReq postLogReq = new PostLogReq("CREATE",postCommentReq.getUserId());
+            commentService.createReCommentLog(postLogReq);
             commentService.postReComment(postCommentReq);
             String result="대댓글 달기 성공";
             return new BaseResponse<>(result);
@@ -191,7 +196,7 @@ public class CommentController {
     //대댓글 삭제
 
     @ResponseBody
-    @PatchMapping("/re/{userId}/{reCommentId}")
+    @PatchMapping("/re/drop/{userId}/{reCommentId}")
     public BaseResponse<String> deleteReComment(@PathVariable("userId") Long userId,@PathVariable("reCommentId")Long reCommentId){
         try {
             //jwt에서 idx 추출.
@@ -208,6 +213,8 @@ public class CommentController {
             if(commentProvider.checkReComment(reCommentId)!=1){
                 return new BaseResponse<>(NOT_EXIST_RECOMMENT);
             }
+            PostLogReq postLogReq = new PostLogReq("DELETE",userId);
+            commentService.createReCommentLog(postLogReq);
             String result="대댓글 삭제 처리 성공";
             commentService.deleteReComment(userId,reCommentId);
             return new BaseResponse<>(result);
@@ -231,6 +238,8 @@ public class CommentController {
                 return new BaseResponse<>(CANT_REPORT_COMMENT);
             }
             commentService.postCommentReport(postCommentReportReq);
+            PostLogReq postLogReq = new PostLogReq("COMMENT",postCommentReportReq.getUserId());
+            commentService.createReportLog(postLogReq);
             String result="댓글 신고 성공";
             return new BaseResponse<>(result);
         }catch (BaseException e){
@@ -253,6 +262,8 @@ public class CommentController {
                 return new BaseResponse<>(CANT_REPORT_COMMENT);
             }
             commentService.postReCommentReport(postReCommentReportReq);
+            PostLogReq postLogReq = new PostLogReq("RECOMMENT",postReCommentReportReq.getUserId());
+            commentService.createReportLog(postLogReq);
             String result="대댓글 신고 성공";
             return new BaseResponse<>(result);
         }catch (BaseException e){
@@ -280,7 +291,9 @@ public class CommentController {
             if(commentProvider.checkComment(commentId)!=1){
                 return new BaseResponse<>(NOT_EXIST_COMMENT);
             }
-            String result="대댓글 삭제 처리 성공";
+            PostLogReq postLogReq = new PostLogReq("DELETE",userId);
+            commentService.createLog(postLogReq);
+            String result="댓글 삭제 처리 성공";
             commentService.deleteComment(commentId);
             return new BaseResponse<>(result);
         } catch (BaseException exception) {

@@ -3,6 +3,7 @@ package com.example.demo.src.user;
 
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.model.KakaoInfo;
 import com.example.demo.utils.JwtService;
@@ -289,6 +290,14 @@ public class UserService {
         try{
             userDao.updateAllStatus(userId);
         } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createLog(PostLogReq postLogReq) throws BaseException {
+        try{
+            userDao.createLog(postLogReq);
+        }catch (Exception e){
             throw new BaseException(DATABASE_ERROR);
         }
     }

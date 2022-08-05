@@ -201,4 +201,16 @@ public class BoardDao {
         String deleteQuery = "update Board set status='FALSE' where id=?";
         this.jdbcTemplate.update(deleteQuery,boardId);
     }
+
+    public void createLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into BoardLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
+    }
+
+    public void createReportLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into ReportLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.src.user;
 
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.follow.FollowProvider;
 import com.example.demo.src.follow.FollowService;
 import io.swagger.annotations.Api;
@@ -113,8 +114,12 @@ public class UserController {
         if(userProvider.checkPhoneNumber(postUserReq.getPhoneNumber())==1){
             throw new BaseException(POST_USERS_PHONE_NUMBER);
         }
+
+
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
+            PostLogReq postLogReq = new PostLogReq("CREATE",postUserRes.getUserId());
+            userService.createLog(postLogReq);
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -147,6 +152,7 @@ public class UserController {
                 }
                 postLoginRes = userProvider.logIn(postLoginReq);
             }
+
             userService.updateLogInDate(postLoginRes.getUserId());
 
             return new BaseResponse<>(postLoginRes);
@@ -155,31 +161,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 유저정보변경 API
-     * [PATCH] /users/:userId
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @PatchMapping("/{userId}")
-    public BaseResponse<String> modifyUserName(@PathVariable("userId") int userId, @RequestBody User user){
-        try {
-            //jwt에서 idx 추출.
-            Long userIdByJwt = jwtService.getUserIdx();
-            //userId와 접근한 유저가 같은지 확인
-            if(userId != userIdByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            //같다면 유저네임 변경
-            PatchUserReq patchUserReq = new PatchUserReq(userId,user.getName());
-            userService.modifyUserName(patchUserReq);
 
-            String result = "";
-        return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
 
 
     @ResponseBody
@@ -328,6 +310,8 @@ public class UserController {
                 userService.createKakaoUser(kakaoInfo,postUserRes.getUserId());
 
             }
+            PostLogReq postLogReq = new PostLogReq("CREATE",postUserRes.getUserId());
+            userService.createLog(postLogReq);
             userService.logIn(postUserRes.getUserId());
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
@@ -352,6 +336,8 @@ public class UserController {
             followService.unFollow(blockUserId,userId);
 
             userService.userBlock(userId,blockUserId);
+            PostLogReq postLogReq = new PostLogReq("CREATE",userId);
+            userService.createLog(postLogReq);
             String result="차단 성공";
             return new BaseResponse<>(result);
         }catch(BaseException exception){
@@ -383,6 +369,8 @@ public class UserController {
             if (!isRegexId(patchProfileReq.getUserId())) {
                 return new BaseResponse<>(POST_USERS_INVALID_ID);
             }
+            PostLogReq postLogReq = new PostLogReq("UPDATE",userId);
+            userService.createLog(postLogReq);
             userService.modifyProfile(userId, patchProfileReq);
             String result="수정 성공";
             return new BaseResponse<>(result);
@@ -401,6 +389,8 @@ public class UserController {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
             userService.modifyProfileImg(userId, patchProfileImgReq);
+            PostLogReq postLogReq = new PostLogReq("UPDATE",userId);
+            userService.createLog(postLogReq);
             String result="수정 성공";
             return new BaseResponse<>(result);
         }catch(BaseException exception){
@@ -468,6 +458,8 @@ public class UserController {
                 userProvider.modifyPublicFalse(userId);
                 result="비공개 계정 설정 성공";
             }
+            PostLogReq postLogReq = new PostLogReq("UPDATE",userId);
+            userService.createLog(postLogReq);
 
             return new BaseResponse<>(result);
         }catch(BaseException e){
@@ -483,6 +475,8 @@ public class UserController {
             //userId와 접근한 유저가 같은지 확인
             if (userId != userIdByJwt) {
             }
+            PostLogReq postLogReq = new PostLogReq("DELETE",userId);
+            userService.createLog(postLogReq);
             String result="";
             userService.updateAllStatus(userId);
 

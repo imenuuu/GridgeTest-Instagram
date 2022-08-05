@@ -1,6 +1,7 @@
 package com.example.demo.src.comment;
 
 import com.example.demo.src.board.model.PostBoardReportReq;
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.comment.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -247,5 +248,23 @@ public class CommentDao {
         String postReCommentReport="insert into BoardReport(userId,boardId,reportId) values(?,?,?)";
         Object[] postReCommentReportParams = new Object[]{postReCommentReportReq.getUserId(),postReCommentReportReq.getReCommentId(),postReCommentReportReq.getReportId()};
         this.jdbcTemplate.update(postReCommentReport,postReCommentReportParams);
+    }
+
+    public void createLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into CommentLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
+    }
+
+    public void createReCommentLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into ReCommentLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
+    }
+
+    public void createReportLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into ReportLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
     }
 }

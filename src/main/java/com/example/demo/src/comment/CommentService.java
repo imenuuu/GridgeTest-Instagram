@@ -2,6 +2,7 @@ package com.example.demo.src.comment;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.board.model.PostBoardReportReq;
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.comment.model.*;
 import com.example.demo.src.follow.FollowDao;
 import org.springframework.stereotype.Service;
@@ -101,6 +102,31 @@ public class CommentService {
     public void deleteComment(Long commentId) throws BaseException {
         try{
             commentDao.deleteComment(commentId);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createLog(PostLogReq postLogReq) throws BaseException {
+        try{
+            commentDao.createLog(postLogReq);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+    public void createReCommentLog(PostLogReq postLogReq) throws BaseException {
+        try{
+            commentDao.createReCommentLog(postLogReq);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createReportLog(PostLogReq postLogReq) throws BaseException {
+        try{
+            commentDao.createReportLog(postLogReq);
         }catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }

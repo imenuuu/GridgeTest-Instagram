@@ -1,6 +1,7 @@
 package com.example.demo.src.user;
 
 
+import com.example.demo.src.board.model.PostLogReq;
 import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -383,7 +384,11 @@ public class UserDao {
     }
 
 
+    public void createLog(PostLogReq postLogReq) {
+        String createLogQuery="insert into UserLog (type,userId) values(?,?)";
+        Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
+        this.jdbcTemplate.update(createLogQuery,createLog);
 
-
+    }
 }
 

@@ -51,6 +51,8 @@ public class BoardController {
             for(BoardImg boardImg: postBoardReq.getBoardImg()){
                 boardService.createBoardImg(postBoardReq.getUserId(),lastInsertId,boardImg.getBoardImgUrl());
             }
+            PostLogReq postLogReq = new PostLogReq("CREATE",postBoardReq.getUserId());
+            boardService.createLog(postLogReq);
             String result="게시글 등록 성공";
             return new BaseResponse<>(result);
         }catch(BaseException e){
@@ -127,6 +129,8 @@ public class BoardController {
             }
             boardService.patchBoard(patchBoardReq);
             String result="게시글 수정 성공";
+            PostLogReq postLogReq = new PostLogReq("UPDATE",patchBoardReq.getUserId());
+            boardService.createLog(postLogReq);
             return new BaseResponse<>(result);
         }catch(BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -149,6 +153,8 @@ public class BoardController {
             }
             boardService.postBoardReport(postBoardReportReq);
             String result="게시글 신고 성공";
+            PostLogReq postLogReq = new PostLogReq("BOARD",postBoardReportReq.getUserId());
+            boardService.createReportLog(postLogReq);
             return new BaseResponse<>(result);
         }catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -170,7 +176,9 @@ public class BoardController {
                 return new BaseResponse<>(NOT_DELETE_INVALID_USER);
             }
             boardService.deleteBoard(boardId);
-            String result="게시글 신고 성공";
+            PostLogReq postLogReq = new PostLogReq("DELETE", userId);
+            boardService.createLog(postLogReq);
+            String result="게시글 삭제 성공";
             return new BaseResponse<>(result);
         }catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
