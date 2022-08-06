@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostReCommentReportReq {
     private Long userId;
-    private Long ReCommentId;
+    private Long reCommentId;
     private Long reportId;
 
 }

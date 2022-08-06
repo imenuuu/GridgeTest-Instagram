@@ -121,6 +121,7 @@ public class BoardController {
     public BaseResponse<String> patchBoard(@RequestBody PatchBoardReq patchBoardReq){
         try {
             Long userIdxByJwt = jwtService.getUserIdx();
+            System.out.println(userIdxByJwt);
             if (patchBoardReq.getUserId() != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
@@ -139,10 +140,10 @@ public class BoardController {
 
     @ResponseBody
     @PostMapping("/report")
-    public BaseResponse<String> postBoardReport(PostBoardReportReq postBoardReportReq){
+    public BaseResponse<String> postBoardReport(@RequestBody PostBoardReportReq postBoardReportReq){
         try{
             Long userIdxByJwt = jwtService.getUserIdx();
-            if (postBoardReportReq.getUserId() != userIdxByJwt) {
+            if (postBoardReportReq.getUserId()!=userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
             if(boardProvider.checkBoard((postBoardReportReq.getBoardId()))!=1){

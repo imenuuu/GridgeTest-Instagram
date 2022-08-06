@@ -7,6 +7,7 @@ import com.example.demo.src.board.model.PostBoardReq;
 import com.example.demo.src.board.model.PostLogReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -24,7 +25,7 @@ public class BoardService {
         this.boardDao = boardDao;
         this.boardProvider = boardProvider;
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public Long createBoard(PostBoardReq postBoardReq) throws BaseException {
         try {
             return boardDao.createBoard(postBoardReq);
@@ -32,7 +33,7 @@ public class BoardService {
                 throw new BaseException(DATABASE_ERROR);
             }
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public void createBoardImg(Long userId, Long lastInsertId, String boardImgUrl) throws BaseException {
         try {
             boardDao.createBoardImg(userId, lastInsertId, boardImgUrl);
@@ -82,7 +83,7 @@ public class BoardService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public void createLog(PostLogReq postLogReq) throws BaseException {
         try {
             boardDao.createLog(postLogReq);
@@ -91,7 +92,7 @@ public class BoardService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public void createReportLog(PostLogReq postLogReq) throws BaseException {
         try {
             boardDao.createReportLog(postLogReq);

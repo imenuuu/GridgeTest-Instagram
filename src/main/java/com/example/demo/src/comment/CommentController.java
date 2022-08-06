@@ -225,10 +225,12 @@ public class CommentController {
 
     @ResponseBody
     @PostMapping("/report")
-    public BaseResponse<String> postCommentReport(PostCommentReportReq postCommentReportReq){
+    public BaseResponse<String> postCommentReport(@RequestBody PostCommentReportReq postCommentReportReq){
         try{
             Long userIdxByJwt = jwtService.getUserIdx();
-            if (postCommentReportReq.getUserId() != userIdxByJwt) {
+            System.out.println(userIdxByJwt);
+            System.out.println(postCommentReportReq.getUserId());
+            if (postCommentReportReq.getUserId()!= userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
             if(commentProvider.checkComment(postCommentReportReq.getCommentId())!=1){
@@ -249,7 +251,7 @@ public class CommentController {
 
     @ResponseBody
     @PostMapping("/re/report")
-    public BaseResponse<String> postReCommentReport(PostReCommentReportReq postReCommentReportReq){
+    public BaseResponse<String> postReCommentReport(@RequestBody PostReCommentReportReq postReCommentReportReq){
         try{
             Long userIdxByJwt = jwtService.getUserIdx();
             if (postReCommentReportReq.getUserId() != userIdxByJwt) {

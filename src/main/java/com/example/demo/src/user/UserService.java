@@ -268,6 +268,7 @@ public class UserService {
         }
     }
 
+
     public void logIn(Long userId) throws BaseException {
         try{
             userDao.logIn(userId);
