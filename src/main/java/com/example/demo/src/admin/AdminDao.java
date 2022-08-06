@@ -267,4 +267,37 @@ public class AdminDao {
                         rs.getTimestamp("logCreated")
                 ),pagingParams);
     }
+
+    public List<GetLogRes> getReportLog(GetLogQueryReq getLogQueryReq) {
+        String getReportLogQuery = String.format("select RL.id'logId',U.userId'userLoginId',type,RL.createdDate'logCreated' " +
+                "from ReportLog RL join User U on U.id=RL.userId where RL.id>0 %s %s order by RL.createdDate desc limit ?,?",getLogQueryReq.getTypeQuery(),getLogQueryReq.getDateQuery());
+        Object[] pagingParams=new Object[]{
+                (getLogQueryReq.getPaging()-1)*10,getLogQueryReq.getPaging()*10
+        };
+        return this.jdbcTemplate.query(getReportLogQuery,
+                (rs, rowNum) -> new GetLogRes(
+                        rs.getLong("logId"),
+                        rs.getString("userLoginId"),
+                        rs.getString("type"),
+                        rs.getTimestamp("logCreated")
+                ),pagingParams);
+
+    }
+
+    public List<GetLogRes> getUserLog(GetLogQueryReq getLogQueryReq) {
+
+        String getUserLogQuery = String.format("select UL.id'logId',U.userId'userLoginId',type,UL.createdDate'logCreated' " +
+                "from UserLog UL join User U on U.id=UL.userId where UL.id>0 %s %s order by UL.createdDate desc limit ?,?",getLogQueryReq.getTypeQuery(),getLogQueryReq.getDateQuery());
+        Object[] pagingParams=new Object[]{
+                (getLogQueryReq.getPaging()-1)*10,getLogQueryReq.getPaging()*10
+        };
+        return this.jdbcTemplate.query(getUserLogQuery,
+                (rs, rowNum) -> new GetLogRes(
+                        rs.getLong("logId"),
+                        rs.getString("userLoginId"),
+                        rs.getString("type"),
+                        rs.getTimestamp("logCreated")
+                ),pagingParams);
+
+    }
 }
