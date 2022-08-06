@@ -3,6 +3,12 @@ package com.example.demo.src.admin;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.admin.model.*;
+import com.example.demo.src.board.BoardProvider;
+import com.example.demo.src.board.BoardService;
+import com.example.demo.src.comment.CommentProvider;
+import com.example.demo.src.comment.CommentService;
+import com.example.demo.src.user.UserProvider;
+import com.example.demo.src.user.UserService;
 import com.example.demo.utils.JwtService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.INVALID_USER_JWT;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -25,10 +31,24 @@ public class AdminController {
     @Autowired
     private final JwtService jwtService;
 
-    public AdminController(AdminProvider adminProvider, AdminService adminService, JwtService jwtService) {
+
+    @Autowired
+    private final CommentProvider commentProvider;
+
+    @Autowired
+    private final BoardProvider boardProvider;
+
+    @Autowired
+    private final UserProvider userProvider;
+
+    public AdminController(AdminProvider adminProvider, AdminService adminService, JwtService jwtService,
+                           CommentProvider commentProvider, BoardProvider boardProvider, UserProvider userProvider) {
         this.adminProvider = adminProvider;
         this.adminService = adminService;
         this.jwtService = jwtService;
+        this.commentProvider=commentProvider;
+        this.boardProvider = boardProvider;
+        this.userProvider = userProvider;
     }
 
     @SneakyThrows
@@ -86,6 +106,9 @@ public class AdminController {
     @GetMapping("/users/{userId}")
     public BaseResponse<List<GetUserInfoRes>> getUserInfo(@PathVariable("userId")Long userId){
         try {
+            if(userProvider.checkUser(userId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
             List<GetUserInfoRes> getUserInfoRes = adminProvider.getUserInfo(userId);
             return new BaseResponse<>(getUserInfoRes);
         }
@@ -98,6 +121,9 @@ public class AdminController {
     @PatchMapping("/users/{userId}")
     public BaseResponse<String> userSuspension(@PathVariable("userId")Long userId) {
         try {
+            if(userProvider.checkUser(userId)!=1){
+                return new BaseResponse<>(NOT_EXIST_USER);
+            }
             String result = "유저 계정 정지 성공";
             adminService.userSuspension(userId);
             return new BaseResponse<>(result);
@@ -110,6 +136,9 @@ public class AdminController {
     @GetMapping("/boards/{boardId}")
     public BaseResponse<List<GetBoardInfoRes>> getBoardInfo(@PathVariable("boardId")Long boardId){
         try {
+            if(boardProvider.checkBoard(boardId)!=1){
+                return new BaseResponse<>(NOT_EXIST_BOARD);
+            }
             List<GetBoardInfoRes> getUserInfoRes = adminProvider.getBoardInfo(boardId);
             return new BaseResponse<>(getUserInfoRes);
         }catch (BaseException e){
@@ -200,6 +229,9 @@ public class AdminController {
     @DeleteMapping("/report/boards/{reportId}")
     public BaseResponse<String> deleteBoardReport(@PathVariable("reportId") Long reportId){
         try {
+            if(adminProvider.checkBoardReport(reportId)!=1){
+                return new BaseResponse<>(NOT_EXIST_REPORT);
+            }
             String result = "신고 삭제 성공";
             adminService.deleteBoardReport(reportId);
             return new BaseResponse<>(result);
@@ -212,6 +244,9 @@ public class AdminController {
     @DeleteMapping("/report/comments/{reportId}")
     public BaseResponse<String> deleteCommentReport(@PathVariable("reportId") Long reportId){
         try {
+            if(adminProvider.checkCommentReport(reportId)!=1){
+                return new BaseResponse<>(NOT_EXIST_REPORT);
+            }
             String result = "신고 삭제 성공";
             adminService.deleteCommentReport(reportId);
             return new BaseResponse<>(result);
@@ -224,6 +259,9 @@ public class AdminController {
     @DeleteMapping("/report/reComments/{reportId}")
     public BaseResponse<String> deleteReCommentReport(@PathVariable("reportId") Long reportId){
         try {
+            if(adminProvider.checkReCommentReport(reportId)!=1){
+                return new BaseResponse<>(NOT_EXIST_REPORT);
+            }
             String result = "신고 삭제 성공";
             adminService.deleteReCommentReport(reportId);
             return new BaseResponse<>(result);
@@ -236,6 +274,9 @@ public class AdminController {
     @GetMapping("/report/boards/{reportId}")
     public BaseResponse<List<GetBoardReportInfoRes>> getBoardReportInfo(@PathVariable("reportId")Long reportId){
         try{
+            if(adminProvider.checkBoardReport(reportId)!=1){
+                return new BaseResponse<>(NOT_EXIST_REPORT);
+            }
             List<GetBoardReportInfoRes> getBoardReportInfoList=adminProvider.getBoardReportInfo(reportId);
             return new BaseResponse<>(getBoardReportInfoList);
         }catch (BaseException e){
@@ -247,6 +288,9 @@ public class AdminController {
     @PatchMapping("/report/boards/{boardId}")
     public BaseResponse<String> deleteBoard(@PathVariable("boardId") Long boardId){
         try{
+            if(boardProvider.checkBoard(boardId)!=1){
+                return new BaseResponse<>(NOT_EXIST_BOARD);
+            }
             String result="삭제 처리 성공";
             adminService.deleteBoard(boardId);
             return new BaseResponse<>(result);
@@ -259,6 +303,9 @@ public class AdminController {
     @PatchMapping("/report/comments/{commentId}")
     public BaseResponse<String> deleteComment(@PathVariable("commentId") Long commentId){
         try{
+            if(commentProvider.checkComment(commentId)!=1){
+                return new BaseResponse<>(NOT_EXIST_COMMENT);
+            }
             String result="삭제 처리 성공";
             adminService.deleteComment(commentId);
             return new BaseResponse<>(result);
@@ -271,6 +318,9 @@ public class AdminController {
     @PatchMapping("/report/reComments/{reCommentId}")
     public BaseResponse<String> deleteReComment(@PathVariable("reCommentId") Long reCommentId){
         try{
+            if(commentProvider.checkReComment(reCommentId)!=1){
+                return new BaseResponse<>(NOT_EXIST_RECOMMENT);
+            }
             String result="삭제 처리 성공";
             adminService.deleteReComment(reCommentId);
             return new BaseResponse<>(result);
@@ -408,6 +458,9 @@ public class AdminController {
         //삭제
         else if (type==3) {
             typeQuery = "and type='DELETE'";
+        }
+        else if(type>4){
+            return new BaseResponse<>(NOT_EXIST_FILTER);
         }
         String dateQuery="";
         if(!startDate.equals("all")) {

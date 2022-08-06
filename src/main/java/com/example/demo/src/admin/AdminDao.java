@@ -300,4 +300,19 @@ public class AdminDao {
                 ),pagingParams);
 
     }
+
+    public int checkBoardReport(Long reportId) {
+        String checkQuery = "select exists(select id from BoardReport where id=? )";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,reportId);
+    }
+
+    public int checkCommentReport(Long reportId) {
+        String checkQuery = "select exists(select id from CommentReport where id=? )";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,reportId);
+    }
+
+    public int checkReCommentReport(Long reportId) {
+        String checkQuery = "select exists(select id from ReCommentReport where id=? )";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,reportId);
+    }
 }

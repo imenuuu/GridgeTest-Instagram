@@ -83,7 +83,9 @@ public enum BaseResponseStatus {
     CANT_REPORT_COMMENT(false,2091 ,"자신의 댓글은 신고할 수 없습니다." ),
     NOT_DELETE_INVALID_USER(false, 2050,"삭제할 권한이 없습니다" ),
     MY_PROFILE_USER(false, 2060 ,"내 프로필 조회 API로 요청해주세요" ),
-    EXIST_FOLLOW_REQUEST(false, 2061  , "이미 팔로우 요청이 존재합니다." );
+    EXIST_FOLLOW_REQUEST(false, 2061  , "이미 팔로우 요청이 존재합니다." ),
+    NOT_EXIST_FILTER(false,2092 ,"필터를 제대로 입력해 주세요 1,2,3번만 존재합니다" ),
+    NOT_EXIST_REPORT(false,2093 , "존재 하지 않는 신고번호 입니다.");
 
 
     // 5000 : 필요시 만들어서 쓰세요

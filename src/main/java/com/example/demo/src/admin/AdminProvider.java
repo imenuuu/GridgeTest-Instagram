@@ -123,4 +123,28 @@ public class AdminProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int checkBoardReport(Long reportId) throws BaseException {
+        try{
+            return adminDao.checkBoardReport(reportId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkCommentReport(Long reportId) throws BaseException {
+        try{
+            return adminDao.checkCommentReport(reportId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkReCommentReport(Long reportId) throws BaseException {
+        try{
+            return adminDao.checkReCommentReport(reportId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
