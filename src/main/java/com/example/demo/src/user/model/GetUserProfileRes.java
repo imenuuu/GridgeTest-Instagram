@@ -12,6 +12,7 @@ import java.util.List;
 public class GetUserProfileRes {
     private String userPublic;
     private Long userId;
+    private Long chatId;
     private String userLoginId;
     private String profileImgUrl;
     private String name;

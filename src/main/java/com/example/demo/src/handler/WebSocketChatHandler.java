@@ -36,6 +36,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             room.handleActions(session, chatMessage, chatService);
         }
         else
-            System.out.println(chatMessage.getUser_name()+"님이 존재하지 않은 채팅방에 접근 중입니다!!");
+            System.out.println(chatMessage.getUserId()+"님이 존재하지 않은 채팅방에 접근 중입니다!!");
     }
 }

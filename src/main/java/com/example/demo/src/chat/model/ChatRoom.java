@@ -45,31 +45,21 @@ public class ChatRoom {
         String message= chatMessage.getMessage();
 
         // 채팅방 입장
-        if(type.equals("ENTER")){
+        if(type.equals("ENTER")) {
             // 세션 생성 및 채팅방 메시지 불러오기
-            System.out.println(session);
             sessions.add(session);
-//            List<ChatMessage> msgList = chatService.getAllChatMessage(chatId);
-//
-            // 새로 입장 = false, 기존 입장 = true
-            int status = chatService.checkUserIn(chatId, userId);
-            if(status!=1)
-                chatService.addChatMember(chatId,userId);  // chat,chatuser table에 기록
-            else
-                return ; // 입장했다는 메시지를 기록하지 않고 보내지도 않음
-        }
-        else if(type.equals("LIKE")){
 
+
+            if (chatService.checkUserIn(chatId).equals("FALSE")) {
+                chatService.addChatMember(chatId);
+            }
         }
-        
+
         // 채팅방 퇴장
         else if(type.equals("OUT")){
             // 세션 삭제
             sessions.remove(session);
             // 채팅방 삭제 = true, 멤버만 삭제 = false
-            boolean del = chatService.delChatMember(chatId,userId);
-            if(del)
-                return ; // 채팅방이 삭제되면 기록과 전송이 불가능함
         }
 
         // 뒤로가기
@@ -79,10 +69,14 @@ public class ChatRoom {
             return ; // 뒤로 갔다는 메시지를 기록하지 않고 보내지도 않음
         }
 
+
+       // chat룸 상태 TRUE 로 변경
         // DB에 메시지 기록
-        chatService.addChatMessage(chatId,userId,message);
-        // 모든 사용자에게 메시지 보내기
-        sendMessage(chatMessage, chatService);
+        else if(type.equals("SEND")) {
+            chatService.addChatMessage(chatId, userId, message);
+            // 모든 사용자에게 메시지 보내기
+            sendMessage(chatMessage, chatService);
+        }
     }
     
     // 메시지 전송

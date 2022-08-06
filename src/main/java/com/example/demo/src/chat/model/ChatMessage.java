@@ -15,7 +15,5 @@ public class ChatMessage {
     private String type;  // 메세지 타입 : 입장, 채팅, 나가기
     private Long chatId;
     private Long userId;
-    private String userLogInId;
-    private String user_name;
     private String message;
 }

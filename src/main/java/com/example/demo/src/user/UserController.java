@@ -76,14 +76,17 @@ public class UserController {
     // Path-variable
     @ResponseBody
     @GetMapping("/{userId}") // (GET) 127.0.0.1:9000/app/users/:userId
-    public BaseResponse<GetUserRes> getUser(@PathVariable("userId") int userId) {
+    public BaseResponse<String> getUser(@PathVariable("userId") Long userId) throws BaseException {
         // Get Users
-        try{
-            GetUserRes getUserRes = userProvider.getUser(userId);
-            return new BaseResponse<>(getUserRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
+        List<GetUserIdRes> getUserIdRes=userService.getUserId(userId);
+
+        for(int i=0;i<getUserIdRes.size();i++){
+            Long chatId=userService.createChat();
+            userService.createChatRoomJoin(chatId,getUserIdRes.get(i).getId());
+            userService.createChatRoomJoin(chatId,userId);
         }
+        String result="채팅방 생성";
+        return new BaseResponse<>(result);
 
     }
 
@@ -112,7 +115,7 @@ public class UserController {
             return new BaseResponse<>(POST_USERS_INVALID_PHONE);
         }
         if(userProvider.checkPhoneNumber(postUserReq.getPhoneNumber())==1){
-            throw new BaseException(POST_USERS_PHONE_NUMBER);
+            return new BaseResponse<>(POST_USERS_PHONE_NUMBER);
         }
 
 
@@ -120,6 +123,15 @@ public class UserController {
             PostUserRes postUserRes = userService.createUser(postUserReq);
             PostLogReq postLogReq = new PostLogReq("CREATE",postUserRes.getUserId());
             userService.createLog(postLogReq);
+            List<GetUserIdRes> getUserIdRes=userService.getUserId(postUserRes.getUserId());
+
+            for(int i=0;i<getUserIdRes.size();i++){
+               Long chatId=userService.createChat();
+               userService.createChatRoomJoin(chatId,getUserIdRes.get(i).getId());
+               userService.createChatRoomJoin(chatId,postUserRes.getUserId());
+            }
+
+
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -130,6 +142,14 @@ public class UserController {
      * [POST] /users/logIn
      * @return BaseResponse<PostLoginRes>
      */
+
+    @ResponseBody
+    @GetMapping("/getUserId/{userId}")
+    public BaseResponse<List<GetUserIdRes>> getUserIdRes(@PathVariable("userId")Long userId) throws BaseException {
+        List<GetUserIdRes> getUserIdRes=userService.getUserId(userId);
+        return new BaseResponse<>(getUserIdRes);
+    }
+
     @ResponseBody
     @PostMapping("/logIn")
     @ApiOperation(value="로그인",notes="로그인 API")
@@ -311,6 +331,14 @@ public class UserController {
 
             }
             PostLogReq postLogReq = new PostLogReq("CREATE",postUserRes.getUserId());
+
+            List<GetUserIdRes> getUserIdRes=userService.getUserId(postUserRes.getUserId());
+
+            for(int i=0;i<getUserIdRes.size();i++){
+                Long chatId=userService.createChat();
+                userService.createChatRoomJoin(chatId,getUserIdRes.get(i).getId());
+                userService.createChatRoomJoin(chatId,postUserRes.getUserId());
+            }
             userService.createLog(postLogReq);
             userService.logIn(postUserRes.getUserId());
             return new BaseResponse<>(postUserRes);
@@ -410,7 +438,7 @@ public class UserController {
             if(userProvider.checkUser(profileUserId)!=1){
                 return new BaseResponse<>(NOT_EXIST_USER);
             }
-            if(userProvider.checkBlock(userId,profileUserId)!=1){
+            if(userProvider.checkBlock(userId,profileUserId)==1){
                 return new BaseResponse<>(BLOCKED_BY_PROFILE_USER);
             }
             List<GetClosedProfileRes> getClosedProfileRes = userProvider.getCloesdProfile(userId,profileUserId);

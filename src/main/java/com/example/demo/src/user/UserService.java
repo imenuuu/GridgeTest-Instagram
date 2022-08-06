@@ -23,6 +23,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -297,6 +298,30 @@ public class UserService {
     public void createLog(PostLogReq postLogReq) throws BaseException {
         try{
             userDao.createLog(postLogReq);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetUserIdRes> getUserId(Long userId) throws BaseException {
+        try{
+            return userDao.getUserId(userId);
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public Long createChat() throws BaseException {
+        try{
+            return userDao.createChat();
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void createChatRoomJoin(Long chatId, Long userId) throws BaseException {
+        try{
+            userDao.createChatRoomJoin(chatId, userId);
         }catch (Exception e){
             throw new BaseException(DATABASE_ERROR);
         }

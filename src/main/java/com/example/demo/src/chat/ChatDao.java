@@ -29,11 +29,10 @@ public class ChatDao {
         this.jdbcTemplate.update(setChatDataQuery,chatId);
     }
 
-    public void addChatMember(Long chatId, Long userId) {
-        String addChatMemberQuery="insert into ChatRoomJoin(userId,dmRoomId) values(?,?)";
-        Object[] addChatMemberParams=new Object[]{userId,chatId};
+    public void addChatMember(Long chatId) {
+        String addChatMemberQuery="update ChatRoom set status='TRUE' where id=?";
 
-        this.jdbcTemplate.update(addChatMemberQuery,addChatMemberParams);
+        this.jdbcTemplate.update(addChatMemberQuery,chatId);
     }
 
     public List<GetChatRoomRes> getAllDataList() {
@@ -41,7 +40,8 @@ public class ChatDao {
     }
 
     public List<GetChatIdRes> getMyChatRoomList(Long userId) {
-        String getChatIdQuery="select dmRoomId'chatId' from ChatRoomJoin where userId=?";
+        String getChatIdQuery="select dmRoomId'chatId' from ChatRoomJoin join ChatRoom CR on CR.id= ChatRoomJoin.dmRoomId " +
+                "where userId=? and CR.status='TRUE' ";
         String getMyChatRoomList="select" +
                 "       profileImg as 'profileImgUrl',\n" +
                 "       name       as 'userName',\n" +
@@ -63,13 +63,14 @@ public class ChatDao {
                 "                   else concat(TIMESTAMPDIFF(hour, DM.createdDate, now()), '시간 전')\n" +
                 "                   end as '게시시간'\n" +
                 "        from Message DM\n" +
-                "        where DM.dmRoomId = DMR.dmRoomId\n" +
+                "        where DM.dmRoomId = DMR.dmRoomId \n" +
                 "        order by DM.createdDate desc\n" +
                 "        limit 1)     'lastMessageTime'\n" +
                 "\n" +
                 "from User\n" +
-                "         join ChatRoomJoin DMR on DMR.userId = User.id\n" +
-                "where dmRoomId=? and User.id!=?;";
+                "         join ChatRoomJoin DMR on DMR.userId = User.id" +
+                "         join ChatRoom CR on CR.id =DMR.dmRoomId\n" +
+                "where dmRoomId=? and User.id!=? and CR.status='TRUE';";
 
         return this.jdbcTemplate.query(getChatIdQuery,
                 (rs,rowNum)->new GetChatIdRes(
@@ -85,11 +86,11 @@ public class ChatDao {
 
     }
 
-    public int checkUserIn(Long chatId, Long userId) {
-        String checkUserInQuery="select exists (select id from ChatRoomJoin where dmRoomId=? and userId=?)";
-        Object[] checkUserIn=new Object[]{chatId,userId};
+    public String checkUserIn(Long chatId) {
+        String checkUserInQuery="select status from ChatRoom where id=?";
+        Object[] checkUserIn=new Object[]{chatId};
         return this.jdbcTemplate.queryForObject(checkUserInQuery,
-                int.class,
+                String.class,
                 checkUserIn);
     }
 
@@ -97,11 +98,6 @@ public class ChatDao {
 
     }
 
-    public void delChatMember(Long chatId, Long userId) {
-    }
-
-    public void MinusChatNum(Long chatId) {
-    }
 
     public Long checkChatNum(Long chatId) {
         return chatId;

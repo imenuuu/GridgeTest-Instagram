@@ -73,7 +73,7 @@ public class UserDao {
                 id);
     }
     public int checkUser(Long id){
-        String checkIdQuery = "select exists(select id from User where id = ?)";
+        String checkIdQuery = "select exists(select id from User where id = ? and userStatus='TRUE' and suspensionStatus='FALSE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 id);
@@ -134,8 +134,8 @@ public class UserDao {
                 "        where F.followUserId = U.id and F.userId != U.id)'followerCnt',\n" +
                 "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt'\n" +
                 "from User U\n" +
-                "left join Board B on B.userId=U.id and B.status='TRUE' and B.suspensionStatus='TRUE'\n" +
-                "where U.id = ?";
+                "left join Board B on B.userId=U.id \n" +
+                "where U.id = ? and B.status='TRUE' and B.suspensionStatus='TRUE'";
         String getProfileBoardQuery="select B.id 'boardId', " +
                 "(select BI.boardImgurl from BoardImg BI where BI.boardId=B.id order by BI.id asc limit 1 ) as 'imgurl'\n" +
                 "from Board B\n" +
@@ -161,7 +161,11 @@ public class UserDao {
 
     public List<GetUserProfileRes> getUserProfile(Long userId, Long targetId) {
         String getMyProfileQuery = "select U.userPublic," +
-                "       U.id         'userId',\n" +
+                "       U.id         'userId'," +
+                "(select CR.dmRoomId \n" +
+                "from ChatRoomJoin CR\n" +
+                "where CR.userId = ?\n" +
+                "  and CR.dmRoomId = (select CRJ.dmRoomId from ChatRoomJoin CRJ where CRJ.userId = ? and CR.dmRoomId = CRJ.dmRoomId))'chatId',\n" +
                 "       U.userId     'userLoginId',\n" +
                 "       U.profileImg 'profileImgUrl',\n" +
                 "       U.name,\n" +
@@ -173,16 +177,18 @@ public class UserDao {
                 "       (select count(F.userId) from Following F where F.userId=U.id and F.status='TRUE' )'followingCnt',\n" +
                 "       (select exists(select F.followUserId from Following F where F.userId=? and F.followUserId=U.id ))'followCheck'" +
                 "from User U\n" +
-                "left join Board B on B.userId=U.id\n" +
-                "where U.id = ?";
+                "left join Board B on B.userId=U.id and B.status='TRUE' and B.suspensionStatus='FALSE'\n" +
+                "where U.id = ? ";
         String getProfileBoardQuery="select B.id 'boardId', " +
                 "(select BI.boardImgurl from BoardImg BI where BI.boardId=B.id order by BI.id asc limit 1 ) as 'imgurl'\n" +
                 "from Board B\n" +
                 "where B.userId=?";
+        Object[] getProfileParams = new Object[]{userId,targetId,userId,targetId};
         return this.jdbcTemplate.query(getMyProfileQuery,
                 (rs,rowNum) ->new GetUserProfileRes(
                         rs.getString("userPublic"),
                         rs.getLong("userId"),
+                        rs.getLong("chatId"),
                         rs.getString("userLoginId"),
                         rs.getString("profileImgUrl"),
                         rs.getString("name"),
@@ -197,7 +203,7 @@ public class UserDao {
                                         rk.getLong("boardId"),
                                         rk.getString("imgUrl")
                                 ),targetId)
-                ),userId,targetId);
+                ),getProfileParams);
     }
 
     public int getUserKakaoExists(String email) {
@@ -263,7 +269,12 @@ public class UserDao {
 
     public List<GetClosedProfileRes> getCloesdProfile(Long userId, Long profileUserId) {
             String getMyProfileQuery = "select U.userPublic," +
-                    "       U.id         'userId',\n" +
+                    "       U.id         'userId'," +
+                    "(select CR.dmRoomId \n" +
+                    "from ChatRoomJoin CR\n" +
+                    "where CR.userId = ?\n" +
+                    "  and CR.dmRoomId = (select CRJ.dmRoomId from ChatRoomJoin CRJ where CRJ.userId = ? and CR.dmRoomId = CRJ.dmRoomId)" +
+                    ")'chatId',\n" +
                     "       U.userId     'userLoginId',\n" +
                     "       U.profileImg 'profileImgUrl',\n" +
                     "       U.name,\n" +
@@ -277,9 +288,11 @@ public class UserDao {
                     "from User U\n" +
                     "left join Board B on B.userId=U.id  and B.status='TRUE' and B.suspensionStatus='FALSE' \n" +
                     "where U.id = ?";
+            Object[] getProfileParams = new Object[]{userId,profileUserId,userId,profileUserId};
             return this.jdbcTemplate.query(getMyProfileQuery,
                     (rs,rowNum) ->new GetClosedProfileRes(
                             rs.getLong("userId"),
+                            rs.getLong("chatId"),
                             rs.getString("userLoginId"),
                             rs.getString("profileImgUrl"),
                             rs.getString("name"),
@@ -289,7 +302,7 @@ public class UserDao {
                             rs.getInt("followerCnt"),
                             rs.getInt("followingCnt"),
                             rs.getInt("followCheck")
-                    ),userId,profileUserId);
+                    ),getProfileParams);
         }
 
     public int checkUserPhoneNumber(PatchPasswordRes patchPasswordRes) {
@@ -389,6 +402,30 @@ public class UserDao {
         Object[] createLog = new Object[]{postLogReq.getType(),postLogReq.getUserId()};
         this.jdbcTemplate.update(createLogQuery,createLog);
 
+    }
+
+    public List<GetUserIdRes> getUserId(Long userId) {
+        String getUserIdQuery="select id from User where id!=?";
+        return this.jdbcTemplate.query(getUserIdQuery,
+                (rs, rowNum) -> new GetUserIdRes(
+                        rs.getLong("id")
+                ),userId );
+
+
+    }
+
+    public Long createChat() {
+        String insertChatQuery ="insert into ChatRoom(status) values('FALSE')";
+        this.jdbcTemplate.update(insertChatQuery);
+
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,Long.class);
+    }
+
+    public void createChatRoomJoin(Long chatId, Long userId) {
+        String createChatRoomJoinQuery="insert into ChatRoomJoin(dmRoomId,userId) values(?,?)";
+        Object[] createChatRoomJoin = new Object[]{chatId,userId};
+        this.jdbcTemplate.update(createChatRoomJoinQuery,createChatRoomJoin);
     }
 }
 

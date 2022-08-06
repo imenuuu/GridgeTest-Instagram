@@ -61,7 +61,7 @@ public class FollowDao {
     }
 
     public int checkUser(Long id){
-        String checkIdQuery = "select exists(select id from User where id = ?)";
+        String checkIdQuery = "select exists(select id from User where id = ? and userStatus='TRUE' and suspensionStatus='FALSE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 id);

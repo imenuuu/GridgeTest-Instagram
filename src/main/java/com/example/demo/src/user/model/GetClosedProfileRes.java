@@ -9,6 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GetClosedProfileRes {
     private Long userId;
+    private Long chatId;
     private String userNickname;
     private String profileImgUrl;
     private String name;

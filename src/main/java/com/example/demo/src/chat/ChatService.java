@@ -24,11 +24,10 @@ interface ChatServiceIF {
     public void setChatData(Long chatId);
     public GetChatRoomRes getChatData(Long chatId);
     public void addChatMemberList(Long chatId, List <userId> userIdList);
-    public int checkUserIn(Long chatId, Long userId) throws BaseException;
-    public void addChatMember(Long chatId, String userId);
+    public String checkUserIn(Long chatId) throws BaseException;
+    public void addChatMember(Long chatId);
 
     // 채팅방에 유저 추가
-    void addChatMember(Long chatId, Long userId);
 
     public boolean delChatMember(Long chatId, Long userId);
     public void addChatMessage(Long chatId, Long userId,String message);
@@ -88,7 +87,7 @@ public class ChatService implements ChatServiceIF{
     public void addChatMemberList(Long chatId, List<userId> userIdList) {
         for(int i = 0; i< userIdList.size(); i++){
             Long userId= userIdList.get(i).getUserId();
-            chatDao.addChatMember(chatId, userId);
+            chatDao.addChatMember(chatId);
         }
     }
 
@@ -142,9 +141,9 @@ public class ChatService implements ChatServiceIF{
 
     // 채팅방에 해당 유저가 있는지 확인
     @Override
-    public int checkUserIn(Long chatId, Long userId) throws BaseException {
+    public String checkUserIn(Long chatId) throws BaseException {
         try{
-            int check = chatDao.checkUserIn(chatId,userId);
+            String check = chatDao.checkUserIn(chatId);
             return check;
         }
         catch(Exception e){
@@ -153,22 +152,16 @@ public class ChatService implements ChatServiceIF{
     }
 
     @Override
-    public void addChatMember(Long chatId, String userId) {
-
+    public void addChatMember(Long chatId) {
+        chatDao.addChatMember(chatId); // 유저 추가
     }
 
-    // 채팅방에 유저 추가
-    @Override
-    public void addChatMember(Long chatId, Long userId){
-        chatDao.addChatMember(chatId, userId); // 유저 추가
-        chatDao.PlusChatNum(chatId); // 인원 수 추가
-    }
+
+
 
     // 채팅방에 유저 삭제
     @Override
     public boolean delChatMember(Long chatId, Long userId){
-        chatDao.delChatMember(chatId, userId);
-        chatDao.MinusChatNum(chatId);
         // 채팅방 인원 수가 0이 되서 채팅방 삭제
         if(chatDao.checkChatNum(chatId)==0){
             chatDao.delChatRoom(chatId); // 채팅방 레코드 삭제

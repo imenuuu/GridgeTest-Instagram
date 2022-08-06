@@ -38,7 +38,7 @@ public class CommentDao {
                 "                       then concat(TIMESTAMPDIFF(hour, B.createdDate, now()), '시간 전')\n" +
                 "                   end as 'boardTime'\n" +
                 "from User U\n" +
-                "join Board B on B.userId = U.id and B.status='TRUE'\n" +
+                "join Board B on B.userId = U.id \n" +
                 "where B.id=? and B.status='TRUE' and B.suspensionStatus='FALSE'";
         String getCommentQuery="select U.id                                                                'userId',\n" +
                 "       U.profileImg                                                        'profileImgUrl',\n" +
@@ -58,11 +58,11 @@ public class CommentDao {
                 "                       then concat(TIMESTAMPDIFF(hour, C.createdDate, now()), '시간 전')\n" +
                 "                   end as 'commentTime',\n" +
                 "       (select count(CL.id) from CommentLike CL where CL.commentId = C.id and CL.status='TRUE') 'likeCnt',\n" +
-                "       (select count(RC.id) from ReComment RC where RC.commentId = C.id and RC.status='TRUE') 'reCommentCnt'," +
+                "       (select count(RC.id) from ReComment RC where RC.commentId = C.id and RC.status='TRUE'and RC.suspensionStatus='FALSE') 'reCommentCnt'," +
                 "(select exists(select id from CommentLike CL where CL.commentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join Comment C on C.userId = U.id\n" +
-                "where C.boardId = ? and C.status='TRUE' order by C.createdDate desc limit ?,?;";
+                "where C.boardId = ? and C.status='TRUE' and C.suspensionStatus='FALSE' order by C.createdDate desc limit ?,?;";
         Object[] getCommentParams = new Object[]{userId,boardId,(paging-1)*10,paging*10};
         return this.jdbcTemplate.query(getBoardInfoQuery,
                 (rs,rowNum)->new GetCommentInfo(
@@ -99,21 +99,21 @@ public class CommentDao {
     }
 
     public int checkComment(Long commentId) {
-        String checkIdQuery = "select exists(select id from Comment where id = ?)";
+        String checkIdQuery = "select exists(select id from Comment where id = ? and status='TRUE' and suspensionStatus='FALSE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 commentId);
     }
 
     public int checkBoard(Long boardId) {
-        String checkIdQuery = "select exists(select id from Board where id = ?)";
+        String checkIdQuery = "select exists(select id from Board where id = ? and status='TRUE' and suspensionStatus='FALSE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 boardId);
     }
 
     public int checkUser(Long id){
-        String checkIdQuery = "select exists(select id from User where id = ?)";
+        String checkIdQuery = "select exists(select id from User where id = ? and suspensionStatus='FALSE' and userStatus='TRUE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 id);
@@ -139,7 +139,7 @@ public class CommentDao {
     }
 
     public int checkReComment(Long reCommentId) {
-        String checkIdQuery = "select exists(select id from ReComment where id = ?)";
+        String checkIdQuery = "select exists(select id from ReComment where id = ? and status='TRUE' and suspensionStatus='FALSE')";
         return this.jdbcTemplate.queryForObject(checkIdQuery,
                 int.class,
                 reCommentId);
@@ -174,7 +174,7 @@ public class CommentDao {
                 "       (select exists(select id from ReCommentLike CL where CL.reCommentId=C.id and CL.userId=?))'likeCheck'\n" +
                 "from User U\n" +
                 "         join ReComment C on C.userId = U.id\n" +
-                "where C.commentId = ? and C.status ='TRUE' order by C.createdDate desc limit ?,?;\n";
+                "where C.commentId = ? and C.status ='TRUE' and C.suspensionStatus='FALSE' order by C.createdDate desc limit ?,?;\n";
         Object[] getReComment = new Object[]{
                 userId,commentId,(paging-1)*10,paging*10
         };
