@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class PatchProfileReq {
-    private String name;
-    private String userId;
-    private String website;
-    private String introduce;
+        private String name;
+        private String userId;
+        private String website;
+        private String introduce;
 }

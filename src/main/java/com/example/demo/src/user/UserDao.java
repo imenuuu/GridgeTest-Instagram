@@ -135,7 +135,7 @@ public class UserDao {
                 "       (select count(F.userId) from Following F where F.userId=U.id)'followingCnt'\n" +
                 "from User U\n" +
                 "left join Board B on B.userId=U.id \n" +
-                "where U.id = ? and B.status='TRUE' and B.suspensionStatus='TRUE'";
+                "where U.id = ? and B.status='TRUE' and B.suspensionStatus='FALSE'";
         String getProfileBoardQuery="select B.id 'boardId', " +
                 "(select BI.boardImgurl from BoardImg BI where BI.boardId=B.id order by BI.id asc limit 1 ) as 'imgurl'\n" +
                 "from Board B\n" +

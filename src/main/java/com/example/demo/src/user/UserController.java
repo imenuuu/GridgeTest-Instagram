@@ -119,10 +119,12 @@ public class UserController {
         }
 
 
+
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
             PostLogReq postLogReq = new PostLogReq("CREATE",postUserRes.getUserId());
             userService.createLog(postLogReq);
+
             List<GetUserIdRes> getUserIdRes=userService.getUserId(postUserRes.getUserId());
 
             for(int i=0;i<getUserIdRes.size();i++){
@@ -131,6 +133,7 @@ public class UserController {
                userService.createChatRoomJoin(chatId,postUserRes.getUserId());
             }
 
+            followService.createFollow(postUserRes.getUserId(),postUserRes.getUserId());
 
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
