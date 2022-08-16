@@ -17,3 +17,6 @@ notifications:
   email:
     recipients:
       - hyunwoo892579@gmail.com
+
+before_install:
+  - chomod +x gradlew
