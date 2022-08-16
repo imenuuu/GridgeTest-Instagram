@@ -6,6 +6,9 @@ branches:
   only:
     - master
 
+before_install:
+  - chomod +x gradlew
+
 cache:
   directories:
     - '$HOME/.m2/repository'
@@ -18,5 +21,3 @@ notifications:
     recipients:
       - hyunwoo892579@gmail.com
 
-before_install:
-  - chomod +x gradlew
