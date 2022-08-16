@@ -18,6 +18,7 @@ import static com.example.demo.config.BaseResponseStatus.*;
 public class FollowController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    //
     @Autowired
     private final FollowProvider followProvider;
     @Autowired
